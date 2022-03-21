@@ -11,13 +11,13 @@ public class TileGridSlotGenerator : MonoBehaviour
     private Vector2 startingPos;
     public float spacing = 50.0f;
     [SerializeField]
-    Vector2Int GridDimensions = new Vector2Int(6, 6);
-    GameObject [,] tileArray;
+    public Vector2Int GridDimensions = new Vector2Int(6, 6);
+    public GameObject [,] tileArray;
 
     [SerializeField]
     private TileTypes m_tileType;
 
-    void Start()
+    private void Awake()
     {
         startingPos = new Vector2(transform.position.x, transform.position.y);
         tileArray = new GameObject[GridDimensions.x, GridDimensions.y];
@@ -27,15 +27,15 @@ public class TileGridSlotGenerator : MonoBehaviour
         {
             //Provides information to tiles
             GameObject newObject = Instantiate(tileSlotPrefab, this.transform);
-            newObject.GetComponent<TileAttributes>().tileTypes = m_tileType;
+            newObject.GetComponent<Tile>().tileTypes = m_tileType;
             newObject.name = "Tile x: " + rowCounter + " y: " + columnCounter;
-            newObject.GetComponent<TileAttributes>().xGridPos = rowCounter;
-            newObject.GetComponent<TileAttributes>().yGridPos = columnCounter;
-            tileArray[rowCounter -1, columnCounter-1] = newObject;
+            newObject.GetComponent<Tile>().xGridPos = rowCounter -1;
+            newObject.GetComponent<Tile>().yGridPos = columnCounter -1;
+            tileArray[rowCounter - 1, columnCounter - 1] = newObject;
 
             //newObject.transform.localPosition = new Vector3((rowCounter - 1) * spacing, (columnCounter - 1) * spacing * -1, 1);
             newObject.GetComponent<RectTransform>().anchoredPosition = new Vector2((rowCounter - 1) * spacing, (columnCounter - 1) * spacing * -1);
-            
+
             rowCounter++;
             if (rowCounter > GridDimensions.x)
             {
@@ -44,5 +44,4 @@ public class TileGridSlotGenerator : MonoBehaviour
             }
         }
     }
-
 }

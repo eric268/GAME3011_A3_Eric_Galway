@@ -90,8 +90,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tileTypes: 1
+  tileColor: 0
+  moveDirection: -1
   xGridPos: 0
   yGridPos: 0
+  movementSpeed: 1
 --- !u!114 &763709207514858927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,4 +107,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f33fb360078f26c408c4cd2a2c8c59b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dragLimit: 1
   selectedGameObject: {fileID: 0}
