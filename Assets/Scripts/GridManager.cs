@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class PopulateTiles : MonoBehaviour
+public class GridManager : MonoBehaviour
 {
-    TileGridSlotGenerator tileGrid;
+    GridGenerator tileGrid;
     public DifficultyTypes difficultyType;
 
+    [Header("Tile Types")]
     public GameObject blueTile, redTile, orangeTile, greenTile, yellowTile;
     public GameObject blueBomb, redBomb, orangeBomb, greenBomb, yellowBomb;
     public GameObject blueFrozen, redFrozen, orangeFrozen, greenFrozen, yellowFrozen;
@@ -25,18 +26,14 @@ public class PopulateTiles : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        tileGrid = GetComponent<TileGridSlotGenerator>();
+        tileGrid = GetComponent<GridGenerator>();
         numFrozenTiles = tileGrid.GridDimensions.x;
-
         normalTypeList = new List<TileColor>();
-        bombTypeList = new List<TileColor>();
-
         normalTypeList.Add(TileColor.Blue_Tile);
         normalTypeList.Add(TileColor.Orange_Tile);
         normalTypeList.Add(TileColor.Green_Tile);
         normalTypeList.Add(TileColor.Yellow_Tile);
         normalTypeList.Add(TileColor.Red_Tile);
-
         PopulateTilesInGrid(difficultyType);
     }
 
@@ -153,4 +150,6 @@ public class PopulateTiles : MonoBehaviour
             tileGrid.tileArray[i, ran].GetComponent<Tile>().tileTypes = TileTypes.Bomb_Tile;
         }
     }
+
+
 }

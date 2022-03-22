@@ -11,7 +11,8 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
     private Vector2 dragDirection;
     private float dragLimit;
     public GameObject selectedGameObject;
-    TileGridSlotGenerator gridGenerator;
+    GridGenerator gridGenerator;
+    private CheckConnections connectionChecker;
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -33,42 +34,100 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
         if (dragDirection.magnitude > dragLimit)
         {
+            bool hasConnection = false;
             if (Mathf.Abs(dragDirection.x) > Mathf.Abs(dragDirection.y))
             {
                 if (dragDirection.x < 0 && tile.xGridPos > 0)
                 {
-                    tile.MoveLeft();
-                    gridGenerator.tileArray[tile.xGridPos - 1, tile.yGridPos].GetComponent<Tile>().MoveRight();
+                    TileColor startColor = tile.tileColor;
+                    TileColor switchColor = gridGenerator.tileArray[tile.xGridPos - 1, tile.yGridPos].GetComponent<Tile>().tileColor;
                     gridGenerator.tileArray[tile.xGridPos - 1, tile.yGridPos].GetComponent<Tile>().xGridPos = tile.xGridPos;
                     tile.xGridPos--;
                     SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos + 1, tile.yGridPos]);
+                    hasConnection = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
+
+                    if (!hasConnection)
+                        hasConnection = connectionChecker.DoesConnectionExist(tile.xGridPos + 1, tile.yGridPos, switchColor);
+
+                    tile.MoveLeft(hasConnection);
+                    gridGenerator.tileArray[tile.xGridPos + 1, tile.yGridPos].GetComponent<Tile>().MoveRight(hasConnection);
+                    if (!hasConnection)
+                    {
+                        gridGenerator.tileArray[tile.xGridPos + 1, tile.yGridPos].GetComponent<Tile>().xGridPos = tile.xGridPos;
+                        tile.xGridPos++;
+                        SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos - 1, tile.yGridPos]);
+                    }
+
                 }
                 else if (dragDirection.x > 0 && (tile.xGridPos < gridGenerator.GridDimensions.x - 1))
                 {
-                    tile.MoveRight();
-                    gridGenerator.tileArray[tile.xGridPos + 1, tile.yGridPos].GetComponent<Tile>().MoveLeft();
+                    TileColor startColor = tile.tileColor;
+                    TileColor switchColor = gridGenerator.tileArray[tile.xGridPos + 1, tile.yGridPos].GetComponent<Tile>().tileColor;
                     gridGenerator.tileArray[tile.xGridPos + 1, tile.yGridPos].GetComponent<Tile>().xGridPos = tile.xGridPos;
                     tile.xGridPos++;
-                    SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos - 1, tile.yGridPos]);
+                    SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos -1, tile.yGridPos]);
+                    
+                    hasConnection = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
+
+                    if (!hasConnection)
+                        hasConnection = connectionChecker.DoesConnectionExist(tile.xGridPos -1, tile.yGridPos, switchColor);
+
+                    tile.MoveRight(hasConnection);
+                    gridGenerator.tileArray[tile.xGridPos - 1, tile.yGridPos].GetComponent<Tile>().MoveLeft(hasConnection);
+
+                    if (!hasConnection)
+                    {
+                        gridGenerator.tileArray[tile.xGridPos - 1, tile.yGridPos].GetComponent<Tile>().xGridPos = tile.xGridPos;
+                        tile.xGridPos--;
+                        SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos + 1, tile.yGridPos]);
+                    }
                 }
             }
             else
             {
                 if (dragDirection.y < 0 && tile.yGridPos < gridGenerator.GridDimensions.y - 1 )
                 {
-                    tile.MoveDown();
-                    gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + 1].GetComponent<Tile>().MoveUp();
+                    TileColor startColor = tile.tileColor;
+                    TileColor switchColor = gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + 1].GetComponent<Tile>().tileColor;
                     gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + 1].GetComponent<Tile>().yGridPos = tile.yGridPos;
                     tile.yGridPos++;
                     SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos - 1]);
+                    hasConnection = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
+
+                    if (!hasConnection)
+                        hasConnection = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos -1, switchColor);
+
+                    tile.MoveDown(hasConnection);
+                    gridGenerator.tileArray[tile.xGridPos, tile.yGridPos - 1].GetComponent<Tile>().MoveUp(hasConnection);
+
+                    if (!hasConnection)
+                    {
+                        gridGenerator.tileArray[tile.xGridPos, tile.yGridPos - 1].GetComponent<Tile>().yGridPos = tile.yGridPos;
+                        tile.yGridPos--;
+                        SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + 1]);
+                    }
                 }
                 else if (dragDirection.y > 0 && tile.yGridPos > 0)
                 {
-                    tile.MoveUp();
-                    gridGenerator.tileArray[tile.xGridPos, tile.yGridPos - 1].GetComponent<Tile>().MoveDown();
+                    TileColor startColor = tile.tileColor;
+                    TileColor switchColor = gridGenerator.tileArray[tile.xGridPos, tile.yGridPos - 1].GetComponent<Tile>().tileColor;
                     gridGenerator.tileArray[tile.xGridPos, tile.yGridPos - 1].GetComponent<Tile>().yGridPos = tile.yGridPos;
                     tile.yGridPos--;
                     SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + 1]);
+                    hasConnection = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
+
+                    if (!hasConnection)
+                        hasConnection = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos +1, switchColor);
+
+                    tile.MoveUp(hasConnection);
+                    gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + 1].GetComponent<Tile>().MoveDown(hasConnection);
+
+                    if (!hasConnection)
+                    {
+                        gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + 1].GetComponent<Tile>().yGridPos = tile.yGridPos;
+                        tile.yGridPos++;
+                        SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos - 1]);
+                    }
                 }
             }
             dragDirection = Vector2.zero;
@@ -78,12 +137,13 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
     // Start is called before the first frame update
     void Start()
     {
-        gridGenerator = transform.parent.GetComponent<TileGridSlotGenerator>();
+        gridGenerator = GetComponentInParent<GridGenerator>();
         dragLimit = 3.0f;
         canvas = GameObject.FindGameObjectWithTag("Canvas");
         canvasScale = canvas.GetComponent<Canvas>().scaleFactor;
         tile = GetComponent<Tile>();
         dragDirection = Vector2.zero;
+        connectionChecker = GetComponentInParent<CheckConnections>();
     }
 
     void SwapElements(ref GameObject g1, ref GameObject g2)

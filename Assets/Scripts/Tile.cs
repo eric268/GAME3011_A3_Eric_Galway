@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
+    public CheckConnections connectionChecker;
+    public GridManager gridManager;
     public TileTypes tileTypes;
     public TileColor tileColor;
     public int xGridPos;
@@ -16,37 +18,40 @@ public class Tile : MonoBehaviour
 
     private void Start()
     {
+        connectionChecker = GetComponent<CheckConnections>();
+        gridManager = GetComponentInParent<GridManager>();
         movementSpeed = 50.0f;
-        spacing = transform.parent.GetComponent<TileGridSlotGenerator>().spacing;
+        spacing = transform.parent.GetComponent<GridGenerator>().spacing;
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
     }
     
 
-    public void MoveLeft()
+    public void MoveLeft(bool hasConnection)
     {
+        
         if (!isRunning)
-            StartCoroutine(MoveTileLeft());
+            StartCoroutine(MoveTileLeft(hasConnection));
     }
 
-    public void MoveRight()
+    public void MoveRight(bool hasConnection)
     {
         if (!isRunning)
-            StartCoroutine(MoveTileRight());
+            StartCoroutine(MoveTileRight(hasConnection));
     }
 
-    public void MoveUp()
+    public void MoveUp(bool hasConnection)
     {
         if (!isRunning)
-            StartCoroutine(MoveTileUp());
+            StartCoroutine(MoveTileUp(hasConnection));
     }
 
-    public void MoveDown()
+    public void MoveDown(bool hasConnection)
     {
         if (!isRunning)
-            StartCoroutine(MoveTileDown());
+            StartCoroutine(MoveTileDown(hasConnection));
     }
 
-    IEnumerator MoveTileLeft()
+    IEnumerator MoveTileLeft(bool hasConnection)
     {
         isRunning = true;
         while (GetComponent<RectTransform>().anchoredPosition.x > (startingPosition.x - spacing))
@@ -54,12 +59,18 @@ public class Tile : MonoBehaviour
             GetComponent<RectTransform>().anchoredPosition = new Vector2(GetComponent<RectTransform>().anchoredPosition.x - movementSpeed * Time.deltaTime, GetComponent<RectTransform>().anchoredPosition.y);
             yield return null;
         }
-
+        isRunning = false;
         GetComponent<RectTransform>().anchoredPosition = new Vector2(startingPosition.x - spacing, startingPosition.y);
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
-        isRunning = false;
+        
+        if (!hasConnection)
+        {
+            StartCoroutine(MoveTileRight(true));
+        }
+
     }
-    IEnumerator MoveTileRight()
+
+    IEnumerator MoveTileRight(bool hasConnection)
     {
         isRunning = true;
         while (GetComponent<RectTransform>().anchoredPosition.x < startingPosition.x + spacing)
@@ -67,12 +78,17 @@ public class Tile : MonoBehaviour
             GetComponent<RectTransform>().anchoredPosition = new Vector2(GetComponent<RectTransform>().anchoredPosition.x + movementSpeed * Time.deltaTime, GetComponent<RectTransform>().anchoredPosition.y);
             yield return null;
         }
+        isRunning = false;
         GetComponent<RectTransform>().anchoredPosition = new Vector2(startingPosition.x + spacing, startingPosition.y);
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
-        isRunning = false;
+
+        if (!hasConnection)
+        {
+            StartCoroutine(MoveTileLeft(true));
+        }
     }
 
-    IEnumerator MoveTileUp()
+    IEnumerator MoveTileUp(bool hasConnection)
     {
         isRunning = true;
         while (GetComponent<RectTransform>().anchoredPosition.y < startingPosition.y + spacing)
@@ -83,9 +99,14 @@ public class Tile : MonoBehaviour
         GetComponent<RectTransform>().anchoredPosition = new Vector2(startingPosition.x, startingPosition.y + spacing);
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
         isRunning = false;
+
+        if (!hasConnection)
+        {
+            StartCoroutine(MoveTileDown(true));
+        }
     }
 
-    IEnumerator MoveTileDown()
+    IEnumerator MoveTileDown(bool hasConnection)
     {
         isRunning = true;
         while (GetComponent<RectTransform>().anchoredPosition.y > startingPosition.y - spacing)
@@ -96,5 +117,10 @@ public class Tile : MonoBehaviour
         GetComponent<RectTransform>().anchoredPosition = new Vector2(startingPosition.x, startingPosition.y - spacing);
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
         isRunning = false;
+
+        if (!hasConnection)
+        {
+            StartCoroutine(MoveTileUp(true));
+        }
     }
 }
