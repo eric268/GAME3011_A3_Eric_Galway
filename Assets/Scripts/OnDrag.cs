@@ -13,9 +13,6 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
     public GameObject selectedGameObject;
     TileGridSlotGenerator gridGenerator;
 
-
-
-   
     public void OnBeginDrag(PointerEventData eventData)
     {
         print("Being Drag");
@@ -29,7 +26,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
-        if (tile.isRunning)
+        if (tile.isRunning || tile.tileTypes == TileTypes.Frozen_Tile)
             return;
 
         dragDirection += eventData.delta / canvasScale;

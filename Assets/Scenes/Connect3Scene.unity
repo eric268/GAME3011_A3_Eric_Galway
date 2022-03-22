@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98d10c860d511634db18d43fa262303c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tileSlotPrefab: {fileID: 8999746484753738331, guid: 290eb594466010a439fcadcf83c93d64, type: 3}
+  tileSlotPrefab: {fileID: 8999746484753738331, guid: c79f307fb83ce6f4d9858e4f926298a0, type: 3}
   spacing: 50
   GridDimensions: {x: 6, y: 8}
   m_tileType: 0
@@ -381,6 +381,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e87f3922e887ae94a852828f082950b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  difficultyType: 2
+  blueTile: {fileID: 8999746484753738331, guid: 290eb594466010a439fcadcf83c93d64, type: 3}
+  redTile: {fileID: 8999746484753738331, guid: 0d1861701638d954dbd6d7f2b5d07aa9, type: 3}
+  orangeTile: {fileID: 8999746484753738331, guid: f7185f94360975c49ac63612197cf533, type: 3}
+  greenTile: {fileID: 8999746484753738331, guid: 1a34cda5bb40056478f110b127cb32bf, type: 3}
+  yellowTile: {fileID: 8999746484753738331, guid: 6ca97f6a57aab9e4b9105577f2897b9e, type: 3}
+  blueBomb: {fileID: 8999746484753738331, guid: 11df9f019844c2b4c8b3ad0042df2909, type: 3}
+  redBomb: {fileID: 8999746484753738331, guid: 5dd27181d8f7d2c44a03497c7421ae12, type: 3}
+  orangeBomb: {fileID: 8999746484753738331, guid: 8cf81c1a2cedd7d49b99fb7da1e13869, type: 3}
+  greenBomb: {fileID: 8999746484753738331, guid: c770c525015f4e54c957fd3462e24565, type: 3}
+  yellowBomb: {fileID: 8999746484753738331, guid: 99863b0a213660042935b70f7fde6408, type: 3}
+  blueFrozen: {fileID: 8999746484753738331, guid: 136ae7415163154458d78a8faaff4a41, type: 3}
+  redFrozen: {fileID: 8999746484753738331, guid: abab94e1fc5ccb84a9fd5747a006420b, type: 3}
+  orangeFrozen: {fileID: 8999746484753738331, guid: 3e843991f166c484b8f21938f4f49980, type: 3}
+  greenFrozen: {fileID: 8999746484753738331, guid: a05f113fac6954c49a4637e8830210a4, type: 3}
+  yellowFrozen: {fileID: 8999746484753738331, guid: c202a693f41d1a440804464913c21a8e, type: 3}
+  frozenTile: {fileID: 8999746484753738331, guid: b8b4955b037218f4294dc9fb7d9d0035, type: 3}
+  numFrozenTiles: 0
+  numBombsOnHard: 4
+  minBombCount: 9
+  maxBombCount: 14
+  normalTypeList: 
+  bombTypeList: 
 --- !u!1 &1396500992
 GameObject:
   m_ObjectHideFlags: 0

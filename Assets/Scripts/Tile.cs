@@ -11,7 +11,7 @@ public class Tile : MonoBehaviour
     public float spacing;
     private float movementSpeed;
     public bool isRunning = false;
-
+    public int bombCount;
     public Vector2 startingPosition;
 
     private void Start()
