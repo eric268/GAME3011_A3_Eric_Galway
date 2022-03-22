@@ -6,7 +6,7 @@ using TMPro;
 
 public class GridManager : MonoBehaviour
 {
-    GridGenerator tileGrid;
+    public GridGenerator tileGrid;
     public DifficultyTypes difficultyType;
 
     [Header("Tile Types")]
@@ -151,5 +151,68 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    public void RemoveAndAddToTop(int x, int y, int yOffset, bool isVertical)
+    {
+        StartCoroutine(AddToTop(x, y, yOffset, isVertical));
+    }
 
+    IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical)
+    {
+        yield return new WaitForSeconds(1.0f);
+
+        //int ran = Random.Range(0, normalTypeList.Count);
+        //TileColor tempTile = normalTypeList[ran];
+        //switch (tempTile)
+        //{
+        //    case TileColor.Blue_Tile:
+        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = blueTile.GetComponent<Image>().sprite;
+        //        break;
+        //    case TileColor.Red_Tile:
+        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = redTile.GetComponent<Image>().sprite;
+        //        break;
+        //    case TileColor.Green_Tile:
+        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = greenTile.GetComponent<Image>().sprite;
+        //        break;
+        //    case TileColor.Orange_Tile:
+        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = orangeTile.GetComponent<Image>().sprite;
+        //        break;
+        //    case TileColor.Yellow_Tile:
+        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = yellowTile.GetComponent<Image>().sprite;
+        //        break;
+        //}
+
+        //tileGrid.tileArray[x, y].GetComponent<Tile>().tileColor = tempTile;
+        //tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+
+        tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition = new Vector2(tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition.x, tileGrid.spacing + tileGrid.spacing * yOffset);
+
+        GameObject temp = tileGrid.tileArray[x, y];
+
+        int counter = y;
+        while (counter >= 0)
+        {
+            tileGrid.tileArray[x, counter].GetComponent<Tile>().ShiftTileDown();
+            counter--;
+            yield return null;
+        }
+
+        tileGrid.tileArray[x, yOffset] = temp;
+
+        counter = y;
+        while (counter >= 0)
+        {
+            if (isVertical)
+            {
+                tileGrid.tileArray[x, counter].GetComponent<Tile>().MoveDownLoop(3);
+            }
+            else
+            {
+                tileGrid.tileArray[x, counter].GetComponent<Tile>().MoveDownLoop(1);
+            }
+            counter--;
+            yield return null;
+        }
+
+        //tileGrid.tileArray[x, yOffset].GetComponent<Tile>().MoveDownLoop(1 + yOffset);
+    }
 }

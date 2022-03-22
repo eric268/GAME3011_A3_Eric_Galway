@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Tile : MonoBehaviour
 {
@@ -24,34 +25,40 @@ public class Tile : MonoBehaviour
         spacing = transform.parent.GetComponent<GridGenerator>().spacing;
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
     }
-    
 
-    public void MoveLeft(bool hasConnection)
+
+    public void MoveLeft(bool reverseMovement)
     {
         
         if (!isRunning)
-            StartCoroutine(MoveTileLeft(hasConnection));
+            StartCoroutine(MoveTileLeft(reverseMovement));
     }
 
-    public void MoveRight(bool hasConnection)
+    public void MoveRight(bool reverseMovement)
     {
         if (!isRunning)
-            StartCoroutine(MoveTileRight(hasConnection));
+            StartCoroutine(MoveTileRight(reverseMovement));
     }
 
-    public void MoveUp(bool hasConnection)
+    public void MoveUp(bool reverseMovement)
     {
         if (!isRunning)
-            StartCoroutine(MoveTileUp(hasConnection));
+            StartCoroutine(MoveTileUp(reverseMovement));
     }
 
-    public void MoveDown(bool hasConnection)
+    public void MoveDown(bool reverseMovement)
     {
         if (!isRunning)
-            StartCoroutine(MoveTileDown(hasConnection));
+            StartCoroutine(MoveTileDown(reverseMovement));
     }
 
-    IEnumerator MoveTileLeft(bool hasConnection)
+    public void MoveDownLoop(int rows)
+    {
+        if (!isRunning)
+            StartCoroutine(MoveTileLoop(rows));
+    }
+
+    IEnumerator MoveTileLeft(bool reverseMovement)
     {
         isRunning = true;
         while (GetComponent<RectTransform>().anchoredPosition.x > (startingPosition.x - spacing))
@@ -63,14 +70,13 @@ public class Tile : MonoBehaviour
         GetComponent<RectTransform>().anchoredPosition = new Vector2(startingPosition.x - spacing, startingPosition.y);
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
         
-        if (!hasConnection)
+        if (!reverseMovement)
         {
             StartCoroutine(MoveTileRight(true));
         }
-
     }
 
-    IEnumerator MoveTileRight(bool hasConnection)
+    IEnumerator MoveTileRight(bool reverseMovement)
     {
         isRunning = true;
         while (GetComponent<RectTransform>().anchoredPosition.x < startingPosition.x + spacing)
@@ -81,14 +87,13 @@ public class Tile : MonoBehaviour
         isRunning = false;
         GetComponent<RectTransform>().anchoredPosition = new Vector2(startingPosition.x + spacing, startingPosition.y);
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
-
-        if (!hasConnection)
+        if (!reverseMovement)
         {
             StartCoroutine(MoveTileLeft(true));
         }
     }
 
-    IEnumerator MoveTileUp(bool hasConnection)
+    IEnumerator MoveTileUp(bool reverseMovement)
     {
         isRunning = true;
         while (GetComponent<RectTransform>().anchoredPosition.y < startingPosition.y + spacing)
@@ -100,13 +105,13 @@ public class Tile : MonoBehaviour
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
         isRunning = false;
 
-        if (!hasConnection)
+        if (!reverseMovement)
         {
             StartCoroutine(MoveTileDown(true));
         }
     }
 
-    IEnumerator MoveTileDown(bool hasConnection)
+    IEnumerator MoveTileDown(bool reverseMovement)
     {
         isRunning = true;
         while (GetComponent<RectTransform>().anchoredPosition.y > startingPosition.y - spacing)
@@ -118,9 +123,41 @@ public class Tile : MonoBehaviour
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
         isRunning = false;
 
-        if (!hasConnection)
+        if (!reverseMovement)
         {
             StartCoroutine(MoveTileUp(true));
         }
+    }
+
+    IEnumerator MoveTileLoop(int rows)
+    {
+        isRunning = true;
+        startingPosition = GetComponent<RectTransform>().anchoredPosition;
+        while (GetComponent<RectTransform>().anchoredPosition.y > startingPosition.y - spacing * rows)
+        {
+            GetComponent<RectTransform>().anchoredPosition = new Vector2(GetComponent<RectTransform>().anchoredPosition.x, GetComponent<RectTransform>().anchoredPosition.y - movementSpeed * Time.deltaTime);
+            yield return null;
+        }
+        GetComponent<RectTransform>().anchoredPosition = new Vector2(startingPosition.x, startingPosition.y - spacing * rows);
+        startingPosition = GetComponent<RectTransform>().anchoredPosition;
+        
+        isRunning = false;
+    }
+
+    public void ShiftTileDown()
+    {
+        if (yGridPos > 0)
+        {
+            gridManager.tileGrid.tileArray[xGridPos, yGridPos -1].GetComponent<Tile>().yGridPos = yGridPos;
+            yGridPos--;
+            SwapElements(ref gridManager.tileGrid.tileArray[xGridPos, yGridPos], ref gridManager.tileGrid.tileArray[xGridPos, yGridPos + 1]);
+        }
+    }
+
+    void SwapElements(ref GameObject g1, ref GameObject g2)
+    {
+        GameObject temp = g1;
+        g1 = g2;
+        g2 = temp;
     }
 }

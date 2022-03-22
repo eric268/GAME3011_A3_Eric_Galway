@@ -16,20 +16,18 @@ public enum ConnectionTypes
 public class CheckConnections : MonoBehaviour
 {
     GridGenerator tileGrid;
+    GridManager gridManager;
     // Start is called before the first frame update
     void Start()
     {
         tileGrid = GetComponent<GridGenerator>();
+        gridManager = GetComponent<GridManager>();
     }
 
-    public bool DoesConnectionExist(int x, int y, TileColor color)
+    public List<ConnectionTypes> DoesConnectionExist(int x, int y, TileColor color)
     {
         List<ConnectionTypes> connections = CheckNewTilePositionForMatch(x, y, color);
-
-        if (connections.Count > 0)
-            return true;
-
-        return false;
+        return connections;
     }
 
     public bool IsMoveAvailable()
@@ -51,7 +49,6 @@ public class CheckConnections : MonoBehaviour
                     return true;
             }
         }
-
         return false;
     }
 
@@ -67,21 +64,37 @@ public class CheckConnections : MonoBehaviour
             TileColor closeLeft = tileGrid.tileArray[x - 1, y].GetComponent<Tile>().tileColor;
             TileColor closeRight = tileGrid.tileArray[x + 1, y].GetComponent<Tile>().tileColor;
             if (closeLeft == color && color == closeRight)
+            {
+                gridManager.RemoveAndAddToTop(x -1, y, 0, false);
+                gridManager.RemoveAndAddToTop(x + 1, y, 0, false);
+                gridManager.RemoveAndAddToTop(x, y, 0, false);
                 connectionTypes.Add(ConnectionTypes.Close_Horizontal);
+            }
         }
         if ((x - 2) >= 0)
         {
             TileColor closeLeft = tileGrid.tileArray[x - 1, y].GetComponent<Tile>().tileColor;
             TileColor farLeft = tileGrid.tileArray[x - 2, y].GetComponent<Tile>().tileColor;
             if (closeLeft == color && color == farLeft)
+            {
+                gridManager.RemoveAndAddToTop(x -1, y, 0, false);
+                gridManager.RemoveAndAddToTop(x -2, y, 0, false);
+                gridManager.RemoveAndAddToTop(x, y, 0, false);
                 connectionTypes.Add(ConnectionTypes.Far_Left);
+            }
+
         }
         if ((x + 2) < tileGrid.GridDimensions.x)
         {
             TileColor farRight = tileGrid.tileArray[x + 2, y].GetComponent<Tile>().tileColor;
             TileColor closeRight = tileGrid.tileArray[x + 1, y].GetComponent<Tile>().tileColor;
             if (closeRight == color && color == farRight)
+            {
+                gridManager.RemoveAndAddToTop(x + 1, y, 0, false);
+                gridManager.RemoveAndAddToTop(x + 2, y, 0, false);
+                gridManager.RemoveAndAddToTop(x, y, 0, false);
                 connectionTypes.Add(ConnectionTypes.Far_Right);
+            }
         }
         if ((y - 1) >= 0 && (y + 1) < tileGrid.GridDimensions.y)
         {
@@ -89,6 +102,9 @@ public class CheckConnections : MonoBehaviour
             TileColor closeDown = tileGrid.tileArray[x, y + 1].GetComponent<Tile>().tileColor;
             if (closeUp == color && closeDown == color)
             {
+                gridManager.RemoveAndAddToTop(x, (y -1), 2, true);
+                gridManager.RemoveAndAddToTop(x, y, 1, true);
+                gridManager.RemoveAndAddToTop(x, y + 1, 0, true);
                 connectionTypes.Add(ConnectionTypes.Close_Vertical);
             }
         }
@@ -99,6 +115,9 @@ public class CheckConnections : MonoBehaviour
 
             if (closeUp == color && farUp == color)
             {
+                gridManager.RemoveAndAddToTop(x, (y -2), 2, true);
+                gridManager.RemoveAndAddToTop(x, (y -1), 1, true);
+                gridManager.RemoveAndAddToTop(x, y, 0, true);
                 connectionTypes.Add(ConnectionTypes.Far_Up);
             }
         }
@@ -109,6 +128,11 @@ public class CheckConnections : MonoBehaviour
 
             if (farDown == color && closeDown == color)
             {
+                gridManager.RemoveAndAddToTop(x, y, 2, true);
+                gridManager.RemoveAndAddToTop(x, (y + 1), 1, true);
+                gridManager.RemoveAndAddToTop(x, (y + 2), 0, true);
+
+
                 connectionTypes.Add(ConnectionTypes.Far_Down);
             }
         }
