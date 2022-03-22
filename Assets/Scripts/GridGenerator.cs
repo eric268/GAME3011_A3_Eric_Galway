@@ -28,7 +28,7 @@ public class GridGenerator : MonoBehaviour
             //Provides information to tiles
             GameObject newObject = Instantiate(tileSlotPrefab, this.transform);
             newObject.GetComponent<Tile>().tileTypes = m_tileType;
-            newObject.name = "Tile x: " + rowCounter + " y: " + columnCounter;
+            newObject.name = "Tile x: " + (rowCounter -1) + " y: " + (columnCounter -1);
             newObject.GetComponent<Tile>().xGridPos = rowCounter -1;
             newObject.GetComponent<Tile>().yGridPos = columnCounter -1;
             tileArray[rowCounter - 1, columnCounter - 1] = newObject;

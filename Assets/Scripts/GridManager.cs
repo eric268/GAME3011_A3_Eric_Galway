@@ -151,12 +151,12 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void RemoveAndAddToTop(int x, int y, int yOffset, bool isVertical)
+    public void RemoveAndAddToTop(int x, int y, int yOffset, bool isVertical, int yMin)
     {
-        StartCoroutine(AddToTop(x, y, yOffset, isVertical));
+        StartCoroutine(AddToTop(x, y, yOffset, isVertical, yMin));
     }
 
-    IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical)
+    IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical, int yMin)
     {
         yield return new WaitForSeconds(1.0f);
 
@@ -189,14 +189,27 @@ public class GridManager : MonoBehaviour
         GameObject temp = tileGrid.tileArray[x, y];
 
         int counter = y;
-        while (counter >= 0)
+
+        if (!isVertical)
         {
-            tileGrid.tileArray[x, counter].GetComponent<Tile>().ShiftTileDown();
-            counter--;
-            yield return null;
+            while (counter > 0)
+            {
+                tileGrid.tileArray[x, counter].GetComponent<Tile>().ShiftTileDown();
+                counter--;
+                yield return null;
+            }
+        }
+        else
+        {
+            while (counter > yMin)
+            {
+                tileGrid.tileArray[x, counter].GetComponent<Tile>().ShiftTileDown();
+                counter--;
+                yield return null;
+            }
         }
 
-        tileGrid.tileArray[x, yOffset] = temp;
+
 
         counter = y;
         while (counter >= 0)
