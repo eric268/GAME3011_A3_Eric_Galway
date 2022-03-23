@@ -21,7 +21,7 @@ public class Tile : MonoBehaviour
     {
         connectionChecker = GetComponent<CheckConnections>();
         gridManager = GetComponentInParent<GridManager>();
-        movementSpeed = 50.0f;
+        movementSpeed = 300.0f;
         spacing = transform.parent.GetComponent<GridGenerator>().spacing;
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
     }

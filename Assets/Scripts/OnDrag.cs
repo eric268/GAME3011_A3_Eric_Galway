@@ -16,24 +16,24 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
     private CheckConnections connectionChecker;
     bool validConnection;
 
-    List<ConnectionTypes> mainConnectionsList;
-    List<ConnectionTypes> switchedConnectionsList;
+    bool mainConnectionsList;
+    bool switchedConnectionsList;
 
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        print("Being Drag");
+
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        print("End Drag");
+
         dragDirection = Vector2.zero;
     }
 
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
-        if (tile.isRunning || tile.tileTypes == TileTypes.Frozen_Tile)
+        if (tile.isRunning || tile.tileTypes == TileTypes.Frozen_Tile || CheckConnections.autoConnectionRunning)
             return;
 
         dragDirection += eventData.delta / canvasScale;
@@ -78,7 +78,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         mainConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
         switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos + (x * -1), tile.yGridPos, switchColor);
 
-        if (mainConnectionsList.Count > 0 || switchedConnectionsList.Count > 0)
+        if (mainConnectionsList || switchedConnectionsList)
         {
             validConnection = true;
         }
@@ -116,7 +116,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         mainConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
         switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos + (y * -1), switchColor);
 
-        if (mainConnectionsList.Count > 0 || switchedConnectionsList.Count > 0)
+        if (mainConnectionsList || switchedConnectionsList)
             validConnection = true;
         else
             validConnection = false;
@@ -141,15 +141,6 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         }
     }
 
-    void ShiftElementDown(int x, int y)
-    {
-        Vector2Int startingPos = new Vector2Int(x, y);
-        while (y > 0)
-        {
-            gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + (y * -1)].GetComponent<Tile>().yGridPos = tile.yGridPos;
-        }
-    }
-
     // Start is called before the first frame update
     void Start()
     {
@@ -167,6 +158,5 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         GameObject temp = g1;
         g1 = g2;
         g2 = temp;
-
     }
 }

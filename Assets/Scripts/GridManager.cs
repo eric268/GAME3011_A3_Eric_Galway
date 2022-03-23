@@ -8,6 +8,7 @@ public class GridManager : MonoBehaviour
 {
     public GridGenerator tileGrid;
     public DifficultyTypes difficultyType;
+    CheckConnections connectionChecker;
 
     [Header("Tile Types")]
     public GameObject blueTile, redTile, orangeTile, greenTile, yellowTile;
@@ -27,6 +28,7 @@ public class GridManager : MonoBehaviour
     void Start()
     {
         tileGrid = GetComponent<GridGenerator>();
+        connectionChecker = GetComponent<CheckConnections>();
         numFrozenTiles = tileGrid.GridDimensions.x;
         normalTypeList = new List<TileColor>();
         normalTypeList.Add(TileColor.Blue_Tile);
@@ -158,31 +160,31 @@ public class GridManager : MonoBehaviour
 
     IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical, int yMin)
     {
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.5f);
+                
+        int ran = Random.Range(0, normalTypeList.Count);
+        TileColor tempTile = normalTypeList[ran];
+        switch (tempTile)
+        {
+            case TileColor.Blue_Tile:
+                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = blueTile.GetComponent<Image>().sprite;
+                break;
+            case TileColor.Red_Tile:
+                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = redTile.GetComponent<Image>().sprite;
+                break;
+            case TileColor.Green_Tile:
+                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = greenTile.GetComponent<Image>().sprite;
+                break;
+            case TileColor.Orange_Tile:
+                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = orangeTile.GetComponent<Image>().sprite;
+                break;
+            case TileColor.Yellow_Tile:
+                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = yellowTile.GetComponent<Image>().sprite;
+                break;
+        }
 
-        //int ran = Random.Range(0, normalTypeList.Count);
-        //TileColor tempTile = normalTypeList[ran];
-        //switch (tempTile)
-        //{
-        //    case TileColor.Blue_Tile:
-        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = blueTile.GetComponent<Image>().sprite;
-        //        break;
-        //    case TileColor.Red_Tile:
-        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = redTile.GetComponent<Image>().sprite;
-        //        break;
-        //    case TileColor.Green_Tile:
-        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = greenTile.GetComponent<Image>().sprite;
-        //        break;
-        //    case TileColor.Orange_Tile:
-        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = orangeTile.GetComponent<Image>().sprite;
-        //        break;
-        //    case TileColor.Yellow_Tile:
-        //        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = yellowTile.GetComponent<Image>().sprite;
-        //        break;
-        //}
-
-        //tileGrid.tileArray[x, y].GetComponent<Tile>().tileColor = tempTile;
-        //tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+        tileGrid.tileArray[x, y].GetComponent<Tile>().tileColor = tempTile;
+        tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
 
         tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition = new Vector2(tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition.x, tileGrid.spacing + tileGrid.spacing * yOffset);
 
@@ -225,7 +227,6 @@ public class GridManager : MonoBehaviour
             counter--;
             yield return null;
         }
-
-        //tileGrid.tileArray[x, yOffset].GetComponent<Tile>().MoveDownLoop(1 + yOffset);
+        connectionChecker.StartConnectionCheckRoutine();
     }
 }

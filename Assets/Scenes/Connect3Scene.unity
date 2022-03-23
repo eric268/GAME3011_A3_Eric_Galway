@@ -382,6 +382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e87f3922e887ae94a852828f082950b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileGrid: {fileID: 0}
   difficultyType: 2
   blueTile: {fileID: 8999746484753738331, guid: 290eb594466010a439fcadcf83c93d64, type: 3}
   redTile: {fileID: 8999746484753738331, guid: 0d1861701638d954dbd6d7f2b5d07aa9, type: 3}
