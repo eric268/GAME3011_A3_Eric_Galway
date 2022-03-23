@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum ConnectionTypes
 {
@@ -19,6 +20,7 @@ public class CheckConnections : MonoBehaviour
     GridManager gridManager;
     public static bool autoConnectionRunning = false;
     // Start is called before the first frame update
+
     void Start()
     {
         tileGrid = GetComponent<GridGenerator>();
@@ -33,9 +35,12 @@ public class CheckConnections : MonoBehaviour
 
     public bool IsMoveAvailable()
     {
-        for (int col = 0; col < tileGrid.GridDimensions.y - 1; col++)
+        if (tileGrid == null)
+            tileGrid = GetComponent<GridGenerator>();
+
+        for (int col = 0; col < tileGrid.GridDimensions.y -1; col++)
         {
-            for (int row = 0; row < tileGrid.GridDimensions.x - 1; row++)
+            for (int row = 0; row < tileGrid.GridDimensions.x-1; row++)
             {
                 TileColor baseColor = tileGrid.tileArray[row, col].GetComponent<Tile>().tileColor;
                 TileColor rightColor = tileGrid.tileArray[row + 1, col].GetComponent<Tile>().tileColor;
@@ -63,9 +68,9 @@ public class CheckConnections : MonoBehaviour
     {
         autoConnectionRunning = true;
         yield return new WaitForSeconds(1.0f);
-        for (int col = 0; col < tileGrid.GridDimensions.y - 1; col++)
+        for (int col = 0; col < tileGrid.GridDimensions.y; col++)
         {
-            for (int row = 0; row < tileGrid.GridDimensions.x - 1; row++)
+            for (int row = 0; row < tileGrid.GridDimensions.x; row++)
             {
                 TileColor baseColor = tileGrid.tileArray[row, col].GetComponent<Tile>().tileColor;
                 if (CheckNewTilePositionForMatch(row, col, baseColor))
@@ -82,164 +87,169 @@ public class CheckConnections : MonoBehaviour
 
     public bool CheckNewTilePositionForMatch(int x, int y, TileColor c)
     {
-        bool foundConnection = false;
-        HashSet<Vector2> moves = new HashSet<Vector2>();
-        TileColor color = c;
+        if (tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
+            return false;
 
-        if ((y - 1) >= 0 && (y + 1) < tileGrid.GridDimensions.y)
+        bool verticalConnectionFound = false;
+        bool horizontalConnectionFound = false;
+
+        //Vertical Connection Found
+        ConnectionInfo verticalInfo = ConnectionFound(false, x);
+        if (verticalInfo.totalTilesConnected >= 3)
         {
-            TileColor closeUp = tileGrid.tileArray[x, y - 1].GetComponent<Tile>().tileColor;
-            TileColor closeDown = tileGrid.tileArray[x, y + 1].GetComponent<Tile>().tileColor;
-            if (closeUp == color && closeDown == color)
+            verticalConnectionFound = true;
+            int counter = 0;
+            for (int i = verticalInfo.minPosition; i <= verticalInfo.maxPosition; i++)
             {
-                if (!moves.Contains(new Vector2(x, y - 1)))
+                if (!tileGrid.tileArray[x, i].GetComponent<Tile>().isMoving)
                 {
-                    moves.Add(new Vector2(x, (y - 1)));
-                    gridManager.RemoveAndAddToTop(x, (y - 1), 2, true, 0);
+                    CheckIfFozenTilesNearby(x, i);
+                    gridManager.RemoveAndAddToTop(x, i, verticalInfo.totalTilesConnected - counter - 1, true, counter, verticalInfo.totalTilesConnected);
+                    tileGrid.tileArray[x, i].GetComponent<Tile>().isMoving = true;
                 }
-                if (!moves.Contains(new Vector2(x, y)))
-                {
-                    moves.Add(new Vector2(x, y));
-                    gridManager.RemoveAndAddToTop(x, y, 1, true, 1);
-                }
-                if (!moves.Contains(new Vector2(x, y + 1)))
-                {
-                    moves.Add(new Vector2(x, y + 1));
-                    gridManager.RemoveAndAddToTop(x, y + 1, 0, true, 2);
-                }
-                foundConnection = true;
-            }
-        }
-        if ((y - 2) >= 0)
-        {
-            TileColor farUp = tileGrid.tileArray[x, y - 2].GetComponent<Tile>().tileColor;
-            TileColor closeUp = tileGrid.tileArray[x, y - 1].GetComponent<Tile>().tileColor;
-
-            if (closeUp == color && farUp == color)
-            {
-                if (!moves.Contains(new Vector2(x, (y - 2))))
-                {
-                    moves.Add(new Vector2(x, (y - 2)));
-                    gridManager.RemoveAndAddToTop(x, (y - 2), 2, true, 0);
-                }
-                if (!moves.Contains(new Vector2(x, (y - 1))))
-                {
-                    moves.Add(new Vector2(x, (y - 1)));
-                    gridManager.RemoveAndAddToTop(x, (y - 1), 1, true, 1);
-                }
-                if (!moves.Contains(new Vector2(x, y)))
-                {
-                    moves.Add(new Vector2(x, y));
-                    gridManager.RemoveAndAddToTop(x, y, 0, true, 2);
-                }
-
-                foundConnection = true;
-            }
-        }
-        if ((y + 2) < tileGrid.GridDimensions.y)
-        {
-            TileColor farDown = tileGrid.tileArray[x, y + 2].GetComponent<Tile>().tileColor;
-            TileColor closeDown = tileGrid.tileArray[x, y + 1].GetComponent<Tile>().tileColor;
-
-            if (farDown == color && closeDown == color)
-            {
-                if (!moves.Contains(new Vector2(x, y)))
-                {
-                    moves.Add(new Vector2(x, y));
-                    gridManager.RemoveAndAddToTop(x, y, 2, true, 0);
-                }
-                if (!moves.Contains(new Vector2(x, (y + 1))))
-                {
-                    moves.Add(new Vector2(x, (y + 1)));
-                    gridManager.RemoveAndAddToTop(x, (y + 1), 1, true, 1);
-                }
-
-                if (!moves.Contains(new Vector2(x, (y + 2))))
-                {
-                    moves.Add(new Vector2(x, (y + 2)));
-                    gridManager.RemoveAndAddToTop(x, (y + 2), 0, true, 2);
-                }
-
-                foundConnection = true;
+                counter++;
             }
         }
 
-        if ((x - 1) >= 0 && (x + 1) < tileGrid.GridDimensions.x)
-        {
-            TileColor closeLeft = tileGrid.tileArray[x - 1, y].GetComponent<Tile>().tileColor;
-            TileColor closeRight = tileGrid.tileArray[x + 1, y].GetComponent<Tile>().tileColor;
-            if (closeLeft == color && color == closeRight)
-            {
-                if (!moves.Contains(new Vector2(x - 1, y)))
-                {
-                    moves.Add(new Vector2(x - 1, y));
-                    gridManager.RemoveAndAddToTop(x - 1, y, 0, false, 0);
-                }
-                if (!moves.Contains(new Vector2(x, y)))
-                {
-                    moves.Add(new Vector2(x, y));
-                    gridManager.RemoveAndAddToTop(x, y, 0, false, 0);
-                }
-                if (!moves.Contains(new Vector2(x + 1, y)))
-                {
-                    moves.Add(new Vector2(x + 1, y));
-                    gridManager.RemoveAndAddToTop(x + 1, y, 0, false, 0);
-                }
-                foundConnection = true;
-            }
-        }
-        if ((x - 2) >= 0)
-        {
-            TileColor closeLeft = tileGrid.tileArray[x - 1, y].GetComponent<Tile>().tileColor;
-            TileColor farLeft = tileGrid.tileArray[x - 2, y].GetComponent<Tile>().tileColor;
-            if (closeLeft == color && color == farLeft)
-            {
-                if (!moves.Contains(new Vector2(x-1,y)))
-                {
-                    moves.Add(new Vector2(x - 1, y));
-                    gridManager.RemoveAndAddToTop(x - 1, y, 0, false, 0);
-                }
-                if (!moves.Contains(new Vector2(x - 2, y)))
-                {
-                    moves.Add(new Vector2(x - 2, y));
-                    gridManager.RemoveAndAddToTop(x - 2, y, 0, false, 0);
-                }
-                if (!moves.Contains(new Vector2(x, y)))
-                {
-                    moves.Add(new Vector2(x, y));
-                    gridManager.RemoveAndAddToTop(x, y, 0, false, 0);
-                }
-                foundConnection = true;
-            }
+        //Horizontal Connection found
+        ConnectionInfo horizontalInfo = ConnectionFound(true, y);
 
-        }
-        if ((x + 2) < tileGrid.GridDimensions.x)
+        if (horizontalInfo.totalTilesConnected >= 3)
         {
-            TileColor farRight = tileGrid.tileArray[x + 2, y].GetComponent<Tile>().tileColor;
-            TileColor closeRight = tileGrid.tileArray[x + 1, y].GetComponent<Tile>().tileColor;
-            if (closeRight == color && color == farRight)
+            horizontalConnectionFound = true;
+            for (int i = horizontalInfo.minPosition; i <= horizontalInfo.maxPosition; i++)
             {
-                if (!moves.Contains(new Vector2(x + 1, y)))
+                if (!tileGrid.tileArray[i, y].GetComponent<Tile>().isMoving)
                 {
-                    moves.Add(new Vector2(x + 1, y));
-                    gridManager.RemoveAndAddToTop(x + 1, y, 0, false, 0);
+                    CheckIfFozenTilesNearby(i, y);
+                    gridManager.RemoveAndAddToTop(i, y, 0, false, 0, 1);
+                    tileGrid.tileArray[i, y].GetComponent<Tile>().isMoving = true;
                 }
-                if (!moves.Contains(new Vector2(x - 2, y)))
-                {
-                    moves.Add(new Vector2(x + 2, y));
-                    gridManager.RemoveAndAddToTop(x + 2, y, 0, false, 0);
-                }
-                if (!moves.Contains(new Vector2(x, y)))
-                {
-                    moves.Add(new Vector2(x, y));
-                    gridManager.RemoveAndAddToTop(x, y, 0, false, 0);
-                }
-                foundConnection = true;
             }
         }
 
-        print("Moves: " + moves.Count);
+        return verticalConnectionFound || horizontalConnectionFound;
+    }
 
-        return foundConnection;
+    ConnectionInfo ConnectionFound(bool xAxis, int axisPosition)
+    {
+        int tilesConnectedCounter = 1;
+        int totalTilesConnected = 1;
+        int minPosition = 0;
+        int maxPosition = 0;
+        if (xAxis)
+        {
+            for (int i = 0; i < tileGrid.GridDimensions.x; i++)
+            {
+                tilesConnectedCounter = 1;
+                Tile current = tileGrid.tileArray[i, axisPosition].GetComponent<Tile>();
+                TileColor currentColor = current.tileColor;
+
+                for (int j = i +1; j < tileGrid.GridDimensions.x; j++)
+                {
+                    Tile next = tileGrid.tileArray[j, axisPosition].GetComponent<Tile>();
+                    TileColor nextColor = next.tileColor;
+
+                    if (current.tileTypes != TileTypes.Frozen_Tile && next.tileTypes != TileTypes.Frozen_Tile &&
+                        currentColor == nextColor)
+                    {
+                        tilesConnectedCounter++;
+                        if (tilesConnectedCounter > totalTilesConnected)
+                        {
+                            totalTilesConnected = tilesConnectedCounter;
+                            minPosition = i;
+                            maxPosition = j;
+                        }
+                    }
+                    else
+                        break;
+                }
+            }
+
+        }
+        else
+        {
+            for (int i = 0; i < tileGrid.GridDimensions.y; i++)
+            {
+                tilesConnectedCounter = 1;
+                Tile current = tileGrid.tileArray[axisPosition, i].GetComponent<Tile>();
+                TileColor currentColor = current.tileColor;
+
+                for (int j = i + 1; j < tileGrid.GridDimensions.y; j++)
+                {
+                    Tile next = tileGrid.tileArray[axisPosition, j].GetComponent<Tile>();
+                    TileColor nextColor = next.tileColor;
+
+                    if (current.tileTypes != TileTypes.Frozen_Tile && next.tileTypes != TileTypes.Frozen_Tile &&
+                        currentColor == nextColor)
+                    {
+                        tilesConnectedCounter++;
+                        if (tilesConnectedCounter > totalTilesConnected)
+                        {
+                            totalTilesConnected = tilesConnectedCounter;
+                            minPosition = i;
+                            maxPosition = j;
+                        }
+                    }
+                    else
+                        break;
+                }
+            }
+        }
+        return new ConnectionInfo(xAxis, totalTilesConnected, minPosition, maxPosition);
+    }
+
+    void CheckIfFozenTilesNearby(int x, int y)
+    {
+        if (x - 1 >= 0)
+        {
+            if (tileGrid.tileArray[x-1, y].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
+            {
+                tileGrid.tileArray[x - 1, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+                tileGrid.tileArray[x - 1, y].transform.GetChild(0).GetComponent<Image>().enabled = false;
+            }
+        }
+        if (x + 1 < tileGrid.GridDimensions.x)
+        {
+            if (tileGrid.tileArray[x + 1, y].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
+            {
+                tileGrid.tileArray[x + 1, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+                tileGrid.tileArray[x + 1, y].transform.GetChild(0).GetComponent<Image>().enabled = false;
+            }
+        }
+        if (y - 1 > 0)
+        {
+            if (tileGrid.tileArray[x, y -1].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
+            {
+                tileGrid.tileArray[x, y - 1].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+                tileGrid.tileArray[x, y - 1].transform.GetChild(0).GetComponent<Image>().enabled = false;
+            }
+        }   
+        if (y + 1 < tileGrid.GridDimensions.y)
+        {
+            if (tileGrid.tileArray[x, y + 1].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
+            {
+                tileGrid.tileArray[x, y + 1].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+                tileGrid.tileArray[x, y + 1].transform.GetChild(0).GetComponent<Image>().enabled = false;
+            }
+        }
     }
 }
+
+public class ConnectionInfo
+{
+    public ConnectionInfo(bool xAxis, int total, int min, int max)
+    {
+        onXAxis = xAxis;
+        totalTilesConnected = total;
+        minPosition = min;
+        maxPosition = max;
+    }
+    public bool onXAxis;
+    public int totalTilesConnected;
+    public int minPosition;
+    public int maxPosition;
+}
+
+
+

@@ -13,6 +13,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
     private float dragLimit;
     public GameObject selectedGameObject;
     GridGenerator gridGenerator;
+    GridManager gridManager;
     private CheckConnections connectionChecker;
     bool validConnection;
 
@@ -33,7 +34,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
-        if (tile.isRunning || tile.tileTypes == TileTypes.Frozen_Tile || CheckConnections.autoConnectionRunning)
+        if (gridManager.HasGridStoppedMoving() || tile.tileTypes == TileTypes.Frozen_Tile || CheckConnections.autoConnectionRunning)
             return;
 
         dragDirection += eventData.delta / canvasScale;
@@ -69,6 +70,9 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
     void SwapTileHorizontal(int x)
     {
+        if (gridGenerator.tileArray[tile.xGridPos + x, tile.yGridPos].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
+            return;
+
         TileColor startColor = tile.tileColor;
         TileColor switchColor = gridGenerator.tileArray[tile.xGridPos + x, tile.yGridPos].GetComponent<Tile>().tileColor;
         gridGenerator.tileArray[tile.xGridPos + x, tile.yGridPos].GetComponent<Tile>().xGridPos = tile.xGridPos;
@@ -76,7 +80,9 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos + (x * -1), tile.yGridPos]);
 
         mainConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
-        switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos + (x * -1), tile.yGridPos, switchColor);
+       
+        //if (!mainConnectionsList)
+            switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos + (x * -1), tile.yGridPos, switchColor);
 
         if (mainConnectionsList || switchedConnectionsList)
         {
@@ -107,6 +113,9 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
     void SwapTileVertical(int y)
     {
+        if (gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + y].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
+            return;
+
         TileColor startColor = tile.tileColor;
         TileColor switchColor = gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + y].GetComponent<Tile>().tileColor;
         gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + y].GetComponent<Tile>().yGridPos = tile.yGridPos;
@@ -151,6 +160,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         tile = GetComponent<Tile>();
         dragDirection = Vector2.zero;
         connectionChecker = GetComponentInParent<CheckConnections>();
+        gridManager = GetComponent<GridManager>();
     }
 
     void SwapElements(ref GameObject g1, ref GameObject g2)

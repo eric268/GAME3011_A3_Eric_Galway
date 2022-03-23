@@ -16,6 +16,7 @@ public class Tile : MonoBehaviour
     public bool isRunning = false;
     public int bombCount;
     public Vector2 startingPosition;
+    public bool isMoving = false;
 
     private void Start()
     {
@@ -69,11 +70,13 @@ public class Tile : MonoBehaviour
         isRunning = false;
         GetComponent<RectTransform>().anchoredPosition = new Vector2(startingPosition.x - spacing, startingPosition.y);
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
-        
+
         if (!reverseMovement)
         {
             StartCoroutine(MoveTileRight(true));
         }
+        else
+            isMoving = false;
     }
 
     IEnumerator MoveTileRight(bool reverseMovement)
@@ -91,6 +94,8 @@ public class Tile : MonoBehaviour
         {
             StartCoroutine(MoveTileLeft(true));
         }
+        else
+            isMoving = false;
     }
 
     IEnumerator MoveTileUp(bool reverseMovement)
@@ -109,6 +114,8 @@ public class Tile : MonoBehaviour
         {
             StartCoroutine(MoveTileDown(true));
         }
+        else
+            isMoving = false;
     }
 
     IEnumerator MoveTileDown(bool reverseMovement)
@@ -127,6 +134,8 @@ public class Tile : MonoBehaviour
         {
             StartCoroutine(MoveTileUp(true));
         }
+        else
+            isMoving = false;
     }
 
     IEnumerator MoveTileLoop(int rows)
@@ -142,6 +151,7 @@ public class Tile : MonoBehaviour
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
         
         isRunning = false;
+        isMoving = false;
     }
 
     public void ShiftTileDown()

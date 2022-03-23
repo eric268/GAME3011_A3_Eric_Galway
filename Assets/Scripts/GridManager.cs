@@ -36,13 +36,17 @@ public class GridManager : MonoBehaviour
         normalTypeList.Add(TileColor.Green_Tile);
         normalTypeList.Add(TileColor.Yellow_Tile);
         normalTypeList.Add(TileColor.Red_Tile);
-        PopulateTilesInGrid(difficultyType);
+
+        GenerateGrid();
     }
 
-    // Update is called once per frame
-    void Update()
+    void GenerateGrid()
     {
-        
+        PopulateTilesInGrid(difficultyType);
+        //while (!connectionChecker.IsMoveAvailable())
+        {
+            PopulateTilesInGrid(difficultyType);
+        }
     }
 
     void PopulateTilesInGrid(DifficultyTypes difficulty)
@@ -153,12 +157,12 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void RemoveAndAddToTop(int x, int y, int yOffset, bool isVertical, int yMin)
+    public void RemoveAndAddToTop(int x, int y, int yOffset, bool isVertical, int yMin, int verticalMovementAmount)
     {
-        StartCoroutine(AddToTop(x, y, yOffset, isVertical, yMin));
+        StartCoroutine(AddToTop(x, y, yOffset, isVertical, yMin, verticalMovementAmount));
     }
 
-    IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical, int yMin)
+    IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical, int yMin, int verticalMovementAmount)
     {
         yield return new WaitForSeconds(0.5f);
                 
@@ -185,10 +189,8 @@ public class GridManager : MonoBehaviour
 
         tileGrid.tileArray[x, y].GetComponent<Tile>().tileColor = tempTile;
         tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
-
         tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition = new Vector2(tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition.x, tileGrid.spacing + tileGrid.spacing * yOffset);
 
-        GameObject temp = tileGrid.tileArray[x, y];
 
         int counter = y;
 
@@ -211,22 +213,28 @@ public class GridManager : MonoBehaviour
             }
         }
 
-
-
         counter = y;
         while (counter >= 0)
         {
-            if (isVertical)
-            {
-                tileGrid.tileArray[x, counter].GetComponent<Tile>().MoveDownLoop(3);
-            }
-            else
-            {
-                tileGrid.tileArray[x, counter].GetComponent<Tile>().MoveDownLoop(1);
-            }
+            tileGrid.tileArray[x, counter].GetComponent<Tile>().MoveDownLoop(verticalMovementAmount);
             counter--;
             yield return null;
         }
         connectionChecker.StartConnectionCheckRoutine();
+    }
+
+    public bool HasGridStoppedMoving()
+    {
+        for (int col = 0; col < tileGrid.GridDimensions.y; col++)
+        {
+            for (int row = 0; row < tileGrid.GridDimensions.x; row++)
+            {
+                Tile tile = tileGrid.tileArray[row, col].GetComponent<Tile>();
+                if (tile.isMoving || tile.isRunning)
+                    return false;
+            }
+        }
+
+        return true;
     }
 }
