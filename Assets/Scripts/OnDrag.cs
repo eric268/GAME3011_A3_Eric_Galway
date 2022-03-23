@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -28,13 +29,12 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
     public void OnEndDrag(PointerEventData eventData)
     {
-
         dragDirection = Vector2.zero;
     }
 
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
-        if (gridManager.HasGridStoppedMoving() || tile.tileTypes == TileTypes.Frozen_Tile || CheckConnections.autoConnectionRunning)
+        if (!gridManager.HasGridStoppedMoving() || tile.tileTypes == TileTypes.Frozen_Tile || CheckConnections.autoConnectionRunning)
             return;
 
         dragDirection += eventData.delta / canvasScale;
@@ -45,33 +45,46 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
             {
                 if (dragDirection.x < 0 && tile.xGridPos > 0)
                 {
-                    SwapTileHorizontal(-1);
+                    if (SwapTileHorizontal(-1))
+                    {
+                        gridManager.UpdateBombCount();
+                    }
 
                 }
                 else if (dragDirection.x > 0 && (tile.xGridPos < gridGenerator.GridDimensions.x - 1))
                 {
-                    SwapTileHorizontal(1);
+                    if (SwapTileHorizontal(1))
+                    {
+                        gridManager.UpdateBombCount();
+                    }
                 }
             }
             else
             {
-                if (dragDirection.y < 0 && tile.yGridPos < gridGenerator.GridDimensions.y - 1 )
+                if (dragDirection.y < 0 && tile.yGridPos < gridGenerator.GridDimensions.y - 1)
                 {
-                    SwapTileVertical(1);
+                    if (SwapTileVertical(1))
+                    {
+                        gridManager.UpdateBombCount();
+                    }
+
                 }
                 else if (dragDirection.y > 0 && tile.yGridPos > 0)
                 {
-                    SwapTileVertical(-1);
+                    if (SwapTileVertical(-1))
+                    {
+                        gridManager.UpdateBombCount();
+                    }
                 }
             }
             dragDirection = Vector2.zero;
         }
     }
 
-    void SwapTileHorizontal(int x)
+    bool SwapTileHorizontal(int x)
     {
         if (gridGenerator.tileArray[tile.xGridPos + x, tile.yGridPos].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
-            return;
+            return false;
 
         TileColor startColor = tile.tileColor;
         TileColor switchColor = gridGenerator.tileArray[tile.xGridPos + x, tile.yGridPos].GetComponent<Tile>().tileColor;
@@ -80,9 +93,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos + (x * -1), tile.yGridPos]);
 
         mainConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
-       
-        //if (!mainConnectionsList)
-            switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos + (x * -1), tile.yGridPos, switchColor);
+        switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos + (x * -1), tile.yGridPos, switchColor);
 
         if (mainConnectionsList || switchedConnectionsList)
         {
@@ -103,18 +114,21 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
             tile.MoveRight(validConnection);
             gridGenerator.tileArray[tile.xGridPos + (x * -1), tile.yGridPos].GetComponent<Tile>().MoveLeft(validConnection);
         }
+        
         if (!validConnection)
         {
             gridGenerator.tileArray[tile.xGridPos + (x * -1), tile.yGridPos].GetComponent<Tile>().xGridPos = tile.xGridPos;
             tile.xGridPos += (x * -1);
             SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos + x, tile.yGridPos]);
+            return false;
         }
+        return true;
     }
 
-    void SwapTileVertical(int y)
+    bool SwapTileVertical(int y)
     {
         if (gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + y].GetComponent<Tile>().tileTypes == TileTypes.Frozen_Tile)
-            return;
+            return false;
 
         TileColor startColor = tile.tileColor;
         TileColor switchColor = gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + y].GetComponent<Tile>().tileColor;
@@ -147,7 +161,10 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
             gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + (y * -1)].GetComponent<Tile>().yGridPos = tile.yGridPos;
             tile.yGridPos += (y * -1);
             SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + y]);
+            return false;
         }
+        return true;
+
     }
 
     // Start is called before the first frame update
@@ -160,7 +177,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         tile = GetComponent<Tile>();
         dragDirection = Vector2.zero;
         connectionChecker = GetComponentInParent<CheckConnections>();
-        gridManager = GetComponent<GridManager>();
+        gridManager = GetComponentInParent<GridManager>();
     }
 
     void SwapElements(ref GameObject g1, ref GameObject g2)

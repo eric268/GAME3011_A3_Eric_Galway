@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -76,7 +77,9 @@ public class Tile : MonoBehaviour
             StartCoroutine(MoveTileRight(true));
         }
         else
+        {
             isMoving = false;
+        }
     }
 
     IEnumerator MoveTileRight(bool reverseMovement)
@@ -95,7 +98,9 @@ public class Tile : MonoBehaviour
             StartCoroutine(MoveTileLeft(true));
         }
         else
+        {
             isMoving = false;
+        }
     }
 
     IEnumerator MoveTileUp(bool reverseMovement)
@@ -115,7 +120,9 @@ public class Tile : MonoBehaviour
             StartCoroutine(MoveTileDown(true));
         }
         else
+        {
             isMoving = false;
+        }
     }
 
     IEnumerator MoveTileDown(bool reverseMovement)
@@ -135,7 +142,9 @@ public class Tile : MonoBehaviour
             StartCoroutine(MoveTileUp(true));
         }
         else
+        {
             isMoving = false;
+        }
     }
 
     IEnumerator MoveTileLoop(int rows)

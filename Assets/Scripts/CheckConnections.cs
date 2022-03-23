@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public enum ConnectionTypes
 {
@@ -38,21 +39,22 @@ public class CheckConnections : MonoBehaviour
         if (tileGrid == null)
             tileGrid = GetComponent<GridGenerator>();
 
-        for (int col = 0; col < tileGrid.GridDimensions.y -1; col++)
+        for (int col = 0; col < tileGrid.GridDimensions.y - 3; col++)
         {
-            for (int row = 0; row < tileGrid.GridDimensions.x-1; row++)
+            for (int row = 0; row < tileGrid.GridDimensions.x - 3; row++)
             {
                 TileColor baseColor = tileGrid.tileArray[row, col].GetComponent<Tile>().tileColor;
-                TileColor rightColor = tileGrid.tileArray[row + 1, col].GetComponent<Tile>().tileColor;
-                TileColor downColor = tileGrid.tileArray[row, col + 1].GetComponent<Tile>().tileColor;
+                
+                TileColor rightColor = tileGrid.tileArray[row + 2, col].GetComponent<Tile>().tileColor;
+                TileColor farRightColor = tileGrid.tileArray[row + 3, col].GetComponent<Tile>().tileColor;
+                
+                TileColor downColor = tileGrid.tileArray[row, col + 2].GetComponent<Tile>().tileColor;
+                TileColor farDownColor = tileGrid.tileArray[row, col + 3].GetComponent<Tile>().tileColor;
 
-                bool connections =  CheckNewTilePositionForMatch(row, col, rightColor);
-                bool connections2 = CheckNewTilePositionForMatch(row, col, downColor);
-                bool connections3 = CheckNewTilePositionForMatch(row + 1, col, baseColor);
-                bool connections4 = CheckNewTilePositionForMatch(row, col + 1, baseColor);
 
-                if (connections || connections2 || connections3 || connections4)
+                if (baseColor == rightColor && baseColor == farRightColor || baseColor == downColor && baseColor == farDownColor)
                     return true;
+                    
             }
         }
         return false;
@@ -103,6 +105,10 @@ public class CheckConnections : MonoBehaviour
             {
                 if (!tileGrid.tileArray[x, i].GetComponent<Tile>().isMoving)
                 {
+                    if (tileGrid.tileArray[x,i].GetComponent<Tile>().tileTypes == TileTypes.Bomb_Tile)
+                    {
+                        gridManager.DestroyBomb(x, i);
+                    }
                     CheckIfFozenTilesNearby(x, i);
                     gridManager.RemoveAndAddToTop(x, i, verticalInfo.totalTilesConnected - counter - 1, true, counter, verticalInfo.totalTilesConnected);
                     tileGrid.tileArray[x, i].GetComponent<Tile>().isMoving = true;
@@ -121,6 +127,10 @@ public class CheckConnections : MonoBehaviour
             {
                 if (!tileGrid.tileArray[i, y].GetComponent<Tile>().isMoving)
                 {
+                    if (tileGrid.tileArray[i, y].GetComponent<Tile>().tileTypes == TileTypes.Bomb_Tile)
+                    {
+                        gridManager.DestroyBomb(i, y);
+                    }
                     CheckIfFozenTilesNearby(i, y);
                     gridManager.RemoveAndAddToTop(i, y, 0, false, 0, 1);
                     tileGrid.tileArray[i, y].GetComponent<Tile>().isMoving = true;

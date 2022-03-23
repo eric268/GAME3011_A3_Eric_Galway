@@ -10,19 +10,19 @@ public class GridManager : MonoBehaviour
     public DifficultyTypes difficultyType;
     CheckConnections connectionChecker;
 
-    [Header("Tile Types")]
-    public GameObject blueTile, redTile, orangeTile, greenTile, yellowTile;
-    public GameObject blueBomb, redBomb, orangeBomb, greenBomb, yellowBomb;
-    public GameObject blueFrozen, redFrozen, orangeFrozen, greenFrozen, yellowFrozen;
+    public Sprite blueTileImage, redTileImage, orangeTileImage, greenTileImage, yellowTileImage;
+    public Sprite blueBombImage, redBombImage, orangeBombImage, greenBombImage, yellowBombImage;
     public GameObject frozenTile;
-
+    public float chanceOfSpawningBombOnHard = 0.05f;
     public int numFrozenTiles;
     public int numBombsOnHard = 4;
     public int minBombCount = 9;
     public int maxBombCount = 14;
 
-    public List<TileColor> normalTypeList;
-    public List<TileColor> bombTypeList;
+    public List<TileColor> colorList;
+    public List<GameObject> bombTileList;
+
+    public bool debugStuff = false;
 
     // Start is called before the first frame update
     void Start()
@@ -30,12 +30,12 @@ public class GridManager : MonoBehaviour
         tileGrid = GetComponent<GridGenerator>();
         connectionChecker = GetComponent<CheckConnections>();
         numFrozenTiles = tileGrid.GridDimensions.x;
-        normalTypeList = new List<TileColor>();
-        normalTypeList.Add(TileColor.Blue_Tile);
-        normalTypeList.Add(TileColor.Orange_Tile);
-        normalTypeList.Add(TileColor.Green_Tile);
-        normalTypeList.Add(TileColor.Yellow_Tile);
-        normalTypeList.Add(TileColor.Red_Tile);
+        colorList = new List<TileColor>();
+        colorList.Add(TileColor.Blue_Tile);
+        colorList.Add(TileColor.Orange_Tile);
+        colorList.Add(TileColor.Green_Tile);
+        colorList.Add(TileColor.Yellow_Tile);
+        colorList.Add(TileColor.Red_Tile);
 
         GenerateGrid();
     }
@@ -43,10 +43,6 @@ public class GridManager : MonoBehaviour
     void GenerateGrid()
     {
         PopulateTilesInGrid(difficultyType);
-        //while (!connectionChecker.IsMoveAvailable())
-        {
-            PopulateTilesInGrid(difficultyType);
-        }
     }
 
     void PopulateTilesInGrid(DifficultyTypes difficulty)
@@ -71,7 +67,7 @@ public class GridManager : MonoBehaviour
         {
             for (int row = tileGrid.GridDimensions.x - 1; row >= 0; row--)
             {
-                List<TileColor> tempList = new List<TileColor>(normalTypeList);
+                List<TileColor> tempList = new List<TileColor>(colorList);
                 if (row +1 <= tileGrid.GridDimensions.x - 1)
                 {
                     tempList.Remove(tileGrid.tileArray[row + 1, col].GetComponent<Tile>().tileColor);
@@ -82,28 +78,9 @@ public class GridManager : MonoBehaviour
                 }
                 int ran = Random.Range(0, tempList.Count);
                 TileColor tempTile = tempList[ran];
-                switch (tempTile)
-                {
-                    case TileColor.Blue_Tile:
-                        tileGrid.tileArray[row, col].GetComponent<Image>().sprite = blueTile.GetComponent<Image>().sprite;
-                        break;
-                    case TileColor.Red_Tile:
-                        tileGrid.tileArray[row, col].GetComponent<Image>().sprite = redTile.GetComponent<Image>().sprite;
-                        break;
-                    case TileColor.Green_Tile:
-                        tileGrid.tileArray[row, col].GetComponent<Image>().sprite = greenTile.GetComponent<Image>().sprite;
-                        break;
-                    case TileColor.Orange_Tile:
-                        tileGrid.tileArray[row, col].GetComponent<Image>().sprite = orangeTile.GetComponent<Image>().sprite;
-                        break;
-                    case TileColor.Yellow_Tile:
-                        tileGrid.tileArray[row, col].GetComponent<Image>().sprite = yellowTile.GetComponent<Image>().sprite;
-                        break;
-
-                }
+                tileGrid.tileArray[row, col].GetComponent<Image>().sprite = GetNormalTileSprite(tempTile);
                 tileGrid.tileArray[row, col].GetComponent<Tile>().tileColor = tempTile;
                 tileGrid.tileArray[row, col].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
-
             }
         }
     }
@@ -117,6 +94,7 @@ public class GridManager : MonoBehaviour
             tileGrid.tileArray[i, ran].GetComponent<Tile>().tileTypes = TileTypes.Frozen_Tile;
         }
     }
+
     void PopulateTileHard()
     {
         PopulateTileEasy();
@@ -133,27 +111,47 @@ public class GridManager : MonoBehaviour
             GameObject child = tileGrid.tileArray[i, ran].transform.GetChild(1).gameObject;
             child.SetActive(true);
             child.GetComponent<TextMeshProUGUI>().text = bombCount.ToString();
-
-            switch (tileGrid.tileArray[i, ran].GetComponent<Tile>().tileColor)
-            {
-                case TileColor.Blue_Tile:
-                    tileGrid.tileArray[i, ran].GetComponent<Image>().sprite = blueBomb.GetComponent<Image>().sprite;
-                    break;
-                case TileColor.Red_Tile:
-                    tileGrid.tileArray[i, ran].GetComponent<Image>().sprite = redBomb.GetComponent<Image>().sprite;
-                    break;
-                case TileColor.Green_Tile:
-                    tileGrid.tileArray[i, ran].GetComponent<Image>().sprite = greenBomb.GetComponent<Image>().sprite;
-                    break;
-                case TileColor.Orange_Tile:
-                    tileGrid.tileArray[i, ran].GetComponent<Image>().sprite = orangeBomb.GetComponent<Image>().sprite;
-                    break;
-                case TileColor.Yellow_Tile:
-                    tileGrid.tileArray[i, ran].GetComponent<Image>().sprite = yellowBomb.GetComponent<Image>().sprite;
-                    break;
-
-            }
+            tileGrid.tileArray[i, ran].GetComponent<Image>().sprite = GetBombTileSprite(tileGrid.tileArray[i, ran].GetComponent<Tile>().tileColor);
             tileGrid.tileArray[i, ran].GetComponent<Tile>().tileTypes = TileTypes.Bomb_Tile;
+            bombTileList.Add(tileGrid.tileArray[i, ran]);
+        }
+    }
+    Sprite GetNormalTileSprite(TileColor color)
+    {
+        switch (color)
+        {
+            case TileColor.Blue_Tile:
+                return blueTileImage;
+            case TileColor.Red_Tile:
+                return redTileImage;
+            case TileColor.Green_Tile:
+                return greenTileImage;
+            case TileColor.Orange_Tile:
+                return orangeTileImage;
+            case TileColor.Yellow_Tile:
+                return yellowTileImage;
+            default:
+                return blueTileImage;
+        }
+    }
+
+    Sprite GetBombTileSprite(TileColor color)
+    {
+        switch (color)
+        {
+            case TileColor.Blue_Tile:
+                return blueBombImage;
+            case TileColor.Red_Tile:
+                return redBombImage;
+            case TileColor.Green_Tile:
+                return greenBombImage;
+            case TileColor.Orange_Tile:
+                return orangeBombImage;
+            case TileColor.Yellow_Tile:
+                return yellowBombImage;
+
+            default:
+                return blueBombImage;
         }
     }
 
@@ -165,32 +163,26 @@ public class GridManager : MonoBehaviour
     IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical, int yMin, int verticalMovementAmount)
     {
         yield return new WaitForSeconds(0.5f);
-                
-        int ran = Random.Range(0, normalTypeList.Count);
-        TileColor tempTile = normalTypeList[ran];
-        switch (tempTile)
+
+        int ran = Random.Range(0, colorList.Count);
+        TileColor tempTile = colorList[ran];
+
+        if (difficultyType == DifficultyTypes.Hard)
         {
-            case TileColor.Blue_Tile:
-                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = blueTile.GetComponent<Image>().sprite;
-                break;
-            case TileColor.Red_Tile:
-                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = redTile.GetComponent<Image>().sprite;
-                break;
-            case TileColor.Green_Tile:
-                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = greenTile.GetComponent<Image>().sprite;
-                break;
-            case TileColor.Orange_Tile:
-                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = orangeTile.GetComponent<Image>().sprite;
-                break;
-            case TileColor.Yellow_Tile:
-                tileGrid.tileArray[x, y].GetComponent<Image>().sprite = yellowTile.GetComponent<Image>().sprite;
-                break;
+            float randomNum = Random.Range(0.0f, 1.0f);
+            if (randomNum <= chanceOfSpawningBombOnHard)
+            {
+                CreateBombTile(x, y, tempTile, yOffset);
+            }
+            else
+            {
+                CreateNormalTile(x, y, tempTile, yOffset);
+            }
         }
-
-        tileGrid.tileArray[x, y].GetComponent<Tile>().tileColor = tempTile;
-        tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
-        tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition = new Vector2(tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition.x, tileGrid.spacing + tileGrid.spacing * yOffset);
-
+        else
+        {
+            CreateNormalTile(x, y, tempTile, yOffset);
+        }
 
         int counter = y;
 
@@ -235,6 +227,51 @@ public class GridManager : MonoBehaviour
             }
         }
 
+        foreach (GameObject obj in bombTileList)
+        {
+            int count = int.Parse(obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
+            if (count <=0)
+            {
+                print("Game Over");
+            }
+        }
+
         return true;
+    }
+
+    public void UpdateBombCount()
+    {
+        foreach (GameObject bomb in bombTileList)
+        {
+            int count = int.Parse(bomb.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
+            count--;
+            bomb.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = count.ToString();
+        }
+    }
+
+    public void DestroyBomb(int x, int y)
+    {
+        bombTileList.Remove(tileGrid.tileArray[x, y]);
+        tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+        tileGrid.tileArray[x, y].transform.GetChild(1).GetComponent<TextMeshProUGUI>().enabled = false;
+    }
+
+    void CreateNormalTile(int x, int y, TileColor color, float offset)
+    {
+        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = GetNormalTileSprite(color);
+        tileGrid.tileArray[x, y].GetComponent<Tile>().tileColor = color;
+        tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+        tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition = new Vector2(tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition.x, tileGrid.spacing + tileGrid.spacing * offset);
+    }
+    void CreateBombTile(int x, int y, TileColor color, float offset)
+    {
+        tileGrid.tileArray[x, y].GetComponent<Image>().sprite = GetBombTileSprite(color);
+        tileGrid.tileArray[x, y].GetComponent<Tile>().tileColor = color;
+        tileGrid.tileArray[x, y].GetComponent<Tile>().tileTypes = TileTypes.Bomb_Tile;
+        tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition = new Vector2(tileGrid.tileArray[x, y].GetComponent<RectTransform>().anchoredPosition.x, tileGrid.spacing + tileGrid.spacing * offset);
+        tileGrid.tileArray[x, y].transform.GetChild(1).gameObject.SetActive(true);
+        tileGrid.tileArray[x, y].transform.GetChild(1).GetComponent<TextMeshProUGUI>().enabled = true;
+        tileGrid.tileArray[x, y].transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = Random.Range(minBombCount, maxBombCount + 1).ToString();
+        bombTileList.Add(tileGrid.tileArray[x, y]);
     }
 }

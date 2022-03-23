@@ -384,28 +384,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileGrid: {fileID: 0}
   difficultyType: 2
-  blueTile: {fileID: 8999746484753738331, guid: 290eb594466010a439fcadcf83c93d64, type: 3}
-  redTile: {fileID: 8999746484753738331, guid: 0d1861701638d954dbd6d7f2b5d07aa9, type: 3}
-  orangeTile: {fileID: 8999746484753738331, guid: f7185f94360975c49ac63612197cf533, type: 3}
-  greenTile: {fileID: 8999746484753738331, guid: 1a34cda5bb40056478f110b127cb32bf, type: 3}
-  yellowTile: {fileID: 8999746484753738331, guid: 6ca97f6a57aab9e4b9105577f2897b9e, type: 3}
-  blueBomb: {fileID: 8999746484753738331, guid: 11df9f019844c2b4c8b3ad0042df2909, type: 3}
-  redBomb: {fileID: 8999746484753738331, guid: 5dd27181d8f7d2c44a03497c7421ae12, type: 3}
-  orangeBomb: {fileID: 8999746484753738331, guid: 8cf81c1a2cedd7d49b99fb7da1e13869, type: 3}
-  greenBomb: {fileID: 8999746484753738331, guid: c770c525015f4e54c957fd3462e24565, type: 3}
-  yellowBomb: {fileID: 8999746484753738331, guid: 99863b0a213660042935b70f7fde6408, type: 3}
-  blueFrozen: {fileID: 8999746484753738331, guid: 136ae7415163154458d78a8faaff4a41, type: 3}
-  redFrozen: {fileID: 8999746484753738331, guid: abab94e1fc5ccb84a9fd5747a006420b, type: 3}
-  orangeFrozen: {fileID: 8999746484753738331, guid: 3e843991f166c484b8f21938f4f49980, type: 3}
-  greenFrozen: {fileID: 8999746484753738331, guid: a05f113fac6954c49a4637e8830210a4, type: 3}
-  yellowFrozen: {fileID: 8999746484753738331, guid: c202a693f41d1a440804464913c21a8e, type: 3}
+  blueTileImage: {fileID: 21300008, guid: 51e2a399831333b478ec978ee598bf0e, type: 3}
+  redTileImage: {fileID: 21300000, guid: 51e2a399831333b478ec978ee598bf0e, type: 3}
+  orangeTileImage: {fileID: 21300018, guid: 51e2a399831333b478ec978ee598bf0e, type: 3}
+  greenTileImage: {fileID: 21300004, guid: 51e2a399831333b478ec978ee598bf0e, type: 3}
+  yellowTileImage: {fileID: 21300014, guid: 51e2a399831333b478ec978ee598bf0e, type: 3}
+  blueBombImage: {fileID: 21300008, guid: eac7e1cdd756b32418e2d9afd6871172, type: 3}
+  redBombImage: {fileID: 21300002, guid: eac7e1cdd756b32418e2d9afd6871172, type: 3}
+  orangeBombImage: {fileID: 21300006, guid: eac7e1cdd756b32418e2d9afd6871172, type: 3}
+  greenBombImage: {fileID: 21300000, guid: eac7e1cdd756b32418e2d9afd6871172, type: 3}
+  yellowBombImage: {fileID: 21300004, guid: eac7e1cdd756b32418e2d9afd6871172, type: 3}
   frozenTile: {fileID: 8999746484753738331, guid: b8b4955b037218f4294dc9fb7d9d0035, type: 3}
+  chanceOfSpawningBombOnHard: 0.05
   numFrozenTiles: 0
   numBombsOnHard: 4
   minBombCount: 9
   maxBombCount: 14
-  normalTypeList: 
-  bombTypeList: 
+  colorList: 
+  bombTileList: []
+  debugStuff: 0
 --- !u!114 &1185630409
 MonoBehaviour:
   m_ObjectHideFlags: 0
