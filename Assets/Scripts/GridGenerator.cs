@@ -19,6 +19,11 @@ public class GridGenerator : MonoBehaviour
 
     private void Awake()
     {
+        CreateGrid();
+    }
+
+    public void CreateGrid()
+    {
         startingPos = new Vector2(transform.position.x, transform.position.y);
         tileArray = new GameObject[GridDimensions.x, GridDimensions.y];
         int numCells = GridDimensions.x * GridDimensions.y;
@@ -28,9 +33,9 @@ public class GridGenerator : MonoBehaviour
             //Provides information to tiles
             GameObject newObject = Instantiate(tileSlotPrefab, this.transform);
             newObject.GetComponent<Tile>().tileTypes = m_tileType;
-            newObject.name = "Tile x: " + (rowCounter -1) + " y: " + (columnCounter -1);
-            newObject.GetComponent<Tile>().xGridPos = rowCounter -1;
-            newObject.GetComponent<Tile>().yGridPos = columnCounter -1;
+            newObject.name = "Tile x: " + (rowCounter - 1) + " y: " + (columnCounter - 1);
+            newObject.GetComponent<Tile>().xGridPos = rowCounter - 1;
+            newObject.GetComponent<Tile>().yGridPos = columnCounter - 1;
             tileArray[rowCounter - 1, columnCounter - 1] = newObject;
 
             //newObject.transform.localPosition = new Vector3((rowCounter - 1) * spacing, (columnCounter - 1) * spacing * -1, 1);
@@ -42,6 +47,14 @@ public class GridGenerator : MonoBehaviour
                 rowCounter = 1;
                 columnCounter++;
             }
+        }
+    }
+
+    public void DestroyGrid()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Destroy(transform.GetChild(i));
         }
     }
 }

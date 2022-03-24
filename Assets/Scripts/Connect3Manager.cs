@@ -1,19 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Connect3Manager : MonoBehaviour
 {
     public static bool gameIsRunning = false;
     public static bool gameWon = false;
     public static bool gameLost = false;
-    public static int totalEasyModeTime = 75;
-    public static int totalMediumModeTime = 60;
-    public static int totalHardModeTime = 50;
+    public static int totalEasyModeTime = 60;
+    public static int totalMediumModeTime = 70;
+    public static int totalHardModeTime = 80;
 
-    public static int easyTileWinCounter = 30;
-    public static int mediumTileWinCounter = 40;
-    public static int hardTileWinCounter = 50;
+    public static int easyTileWinCounter = 60;
+    public static int mediumTileWinCounter = 80;
+    public static int hardTileWinCounter = 100;
 
     public static DifficultyTypes gameDifficulty;
     public static int currentTime;
@@ -21,30 +22,36 @@ public class Connect3Manager : MonoBehaviour
     public static int tilesToWin;
     public static int score;
 
+    GridManager gridManager;
     public Connect3UIController uIController;
 
     public void Awake()
     {
         uIController = FindObjectOfType<Connect3UIController>();
+        gridManager = FindObjectOfType<GridManager>();
         NewGame();
     }
 
     private void FixedUpdate()
     {
-        if (gameIsRunning && !gameWon && !gameLost)
+        if (gameIsRunning && !gameWon)
         {
             if (currentTileDestroyed >= tilesToWin)
             {
-                gameWon = true;
                 CancelInvoke("DecrementTimer");
-                uIController.SetGameOverText(true);
-
-                //Broadcast some message 
             }
             else if (currentTime <= 0 || gameLost)
             {
                 uIController.SetGameOverText(false);
                 CancelInvoke("DecrementTimer");
+            }
+            foreach (GameObject obj in gridManager.bombTileList)
+            {
+                int count = int.Parse(obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
+                if (count <= 0)
+                {
+                    Connect3Manager.gameLost = true;
+                }
             }
         }
     }
@@ -81,10 +88,12 @@ public class Connect3Manager : MonoBehaviour
         score = 0;
         CancelInvoke("DecrementTimer");
         SetRandomDifficulty();
+        currentTileDestroyed = 0;
         gameIsRunning = true;
         gameWon = false;
         gameLost = false;
         InvokeRepeating("DecrementTimer", 0.0f, 1.0f);
         uIController.SetText();
+                gridManager.bombTileList.Clear();
     }
 }

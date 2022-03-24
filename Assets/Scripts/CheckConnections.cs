@@ -71,13 +71,14 @@ public class CheckConnections : MonoBehaviour
     IEnumerator IsConnectionMade()
     {
         autoConnectionRunning = true;
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.85f);
         for (int col = 0; col < tileGrid.GridDimensions.y; col++)
         {
             for (int row = 0; row < tileGrid.GridDimensions.x; row++)
             {
+                Tile tile = tileGrid.tileArray[row, col].GetComponent<Tile>();
                 TileColor baseColor = tileGrid.tileArray[row, col].GetComponent<Tile>().tileColor;
-                if (CheckNewTilePositionForMatch(row, col, baseColor))
+                if (!tile.isMoving && !tile.isRunning && CheckNewTilePositionForMatch(row, col, baseColor))
                 {
                     autoConnectionRunning = false;
                     yield break;
@@ -85,6 +86,11 @@ public class CheckConnections : MonoBehaviour
             }
         }
         autoConnectionRunning = false;
+        if (Connect3Manager.currentTileDestroyed >= Connect3Manager.tilesToWin)
+        {
+            Connect3Manager.gameWon = true;
+            uiController.SetGameOverText(true);
+        }
     }
 
 
@@ -253,10 +259,13 @@ public class CheckConnections : MonoBehaviour
 
     void UpdateGameStats(ConnectionInfo info)
     {
-        Connect3Manager.score += 10 * info.totalTilesConnected;
-        Connect3Manager.currentTileDestroyed += info.totalTilesConnected;
-        uiController.SetScoreText();
-        uiController.SetTilesDestroyedText();
+        if (!Connect3Manager.gameLost)
+        {
+            Connect3Manager.score += 5 * info.totalTilesConnected * info.totalTilesConnected;
+            Connect3Manager.currentTileDestroyed += info.totalTilesConnected;
+            uiController.SetScoreText();
+            uiController.SetTilesDestroyedText();
+        }
     }
 }
 

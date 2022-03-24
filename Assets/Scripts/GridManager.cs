@@ -8,7 +8,7 @@ public class GridManager : MonoBehaviour
 {
     public GridGenerator tileGrid;
     CheckConnections connectionChecker;
-
+    Connect3UIController uIController;
     public Sprite blueTileImage, redTileImage, orangeTileImage, greenTileImage, yellowTileImage;
     public Sprite blueBombImage, redBombImage, orangeBombImage, greenBombImage, yellowBombImage;
     public GameObject frozenTile;
@@ -17,6 +17,7 @@ public class GridManager : MonoBehaviour
     public int numBombsOnHard = 4;
     public int minBombCount = 9;
     public int maxBombCount = 14;
+    public static bool tilesMoving = false;
 
     public List<TileColor> colorList;
     public List<GameObject> bombTileList;
@@ -35,7 +36,7 @@ public class GridManager : MonoBehaviour
         colorList.Add(TileColor.Green_Tile);
         colorList.Add(TileColor.Yellow_Tile);
         colorList.Add(TileColor.Red_Tile);
-
+        uIController = FindObjectOfType<Connect3UIController>();
         GenerateGrid();
     }
 
@@ -44,7 +45,7 @@ public class GridManager : MonoBehaviour
         PopulateTilesInGrid(Connect3Manager.gameDifficulty);
     }
 
-    void PopulateTilesInGrid(DifficultyTypes difficulty)
+    public void PopulateTilesInGrid(DifficultyTypes difficulty)
     {
         switch (difficulty)
         {
@@ -80,6 +81,8 @@ public class GridManager : MonoBehaviour
                 tileGrid.tileArray[row, col].GetComponent<Image>().sprite = GetNormalTileSprite(tempTile);
                 tileGrid.tileArray[row, col].GetComponent<Tile>().tileColor = tempTile;
                 tileGrid.tileArray[row, col].GetComponent<Tile>().tileTypes = TileTypes.Normal_Tile;
+                tileGrid.tileArray[row, col].transform.GetChild(0).gameObject.SetActive(false);
+                tileGrid.tileArray[row, col].transform.GetChild(1).gameObject.SetActive(false);
             }
         }
     }
@@ -90,6 +93,7 @@ public class GridManager : MonoBehaviour
         for (int i = 0; i < numFrozenTiles; i++)
         {
             tileGrid.tileArray[i, ran].transform.GetChild(0).gameObject.SetActive(true);
+            tileGrid.tileArray[i, ran].transform.GetChild(0).GetComponent<Image>().enabled = true;
             tileGrid.tileArray[i, ran].GetComponent<Tile>().tileTypes = TileTypes.Frozen_Tile;
         }
     }
@@ -109,6 +113,7 @@ public class GridManager : MonoBehaviour
             tileGrid.tileArray[i, ran].GetComponent<Tile>().bombCount = bombCount;
             GameObject child = tileGrid.tileArray[i, ran].transform.GetChild(1).gameObject;
             child.SetActive(true);
+            child.GetComponent<TextMeshProUGUI>().enabled = true;
             child.GetComponent<TextMeshProUGUI>().text = bombCount.ToString();
             tileGrid.tileArray[i, ran].GetComponent<Image>().sprite = GetBombTileSprite(tileGrid.tileArray[i, ran].GetComponent<Tile>().tileColor);
             tileGrid.tileArray[i, ran].GetComponent<Tile>().tileTypes = TileTypes.Bomb_Tile;
@@ -223,15 +228,6 @@ public class GridManager : MonoBehaviour
                 Tile tile = tileGrid.tileArray[row, col].GetComponent<Tile>();
                 if (tile.isMoving || tile.isRunning)
                     return false;
-            }
-        }
-
-        foreach (GameObject obj in bombTileList)
-        {
-            int count = int.Parse(obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
-            if (count <=0)
-            {
-                Connect3Manager.gameLost = true;
             }
         }
 

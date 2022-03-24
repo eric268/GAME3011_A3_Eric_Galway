@@ -13,21 +13,26 @@ public class Connect3UIController : MonoBehaviour
     public TextMeshProUGUI tilesToWinText;
     public TextMeshProUGUI gameOverText;
     public Connect3Manager connect3Manager;
+    public GridManager gridManager;
+    public GridGenerator gridGenerator;
 
     private void Start()
     {
         connect3Manager = FindObjectOfType<Connect3Manager>();
+        gridManager = FindObjectOfType<GridManager>();
     }
     // Update is called once per frame
     void FixedUpdate()
     {
-        SetTimeRemainingText();
+        if (timeText != null)
+            SetTimeRemainingText();
     }
 
     public void OnRestartPressed()
     {
         connect3Manager.NewGame();
         SetText();
+        gridManager.PopulateTilesInGrid(Connect3Manager.gameDifficulty);
     }
 
     public void SetText()
@@ -41,12 +46,12 @@ public class Connect3UIController : MonoBehaviour
 
     public void OnPlayPressed()
     {
-        SceneManager.LoadScene("MainLevel");
+        SceneManager.LoadScene("Connect3Scene");
     }
 
     public void OnLeavePressed()
     {
-        SceneManager.LoadScene("MainLevel");
+        SceneManager.LoadScene("MainScene");
     }
 
     public void OnQuitPressed()

@@ -23,7 +23,7 @@ public class Tile : MonoBehaviour
     {
         connectionChecker = GetComponent<CheckConnections>();
         gridManager = GetComponentInParent<GridManager>();
-        movementSpeed = 300.0f;
+        movementSpeed = 500.0f;
         spacing = transform.parent.GetComponent<GridGenerator>().spacing;
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
     }
@@ -76,10 +76,9 @@ public class Tile : MonoBehaviour
         {
             StartCoroutine(MoveTileRight(true));
         }
-        else
-        {
-            isMoving = false;
-        }
+
+        isMoving = false;
+        isRunning = false;
     }
 
     IEnumerator MoveTileRight(bool reverseMovement)
@@ -123,6 +122,7 @@ public class Tile : MonoBehaviour
         {
             isMoving = false;
         }
+
     }
 
     IEnumerator MoveTileDown(bool reverseMovement)
@@ -150,6 +150,7 @@ public class Tile : MonoBehaviour
     IEnumerator MoveTileLoop(int rows)
     {
         isRunning = true;
+        isMoving = true;
         startingPosition = GetComponent<RectTransform>().anchoredPosition;
         while (GetComponent<RectTransform>().anchoredPosition.y > startingPosition.y - spacing * rows)
         {
@@ -161,6 +162,7 @@ public class Tile : MonoBehaviour
         
         isRunning = false;
         isMoving = false;
+        
     }
 
     public void ShiftTileDown()

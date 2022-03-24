@@ -24,7 +24,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-
+        dragDirection = Vector2.zero;
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -34,8 +34,11 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
-        if (!gridManager.HasGridStoppedMoving() || tile.tileTypes == TileTypes.Frozen_Tile || CheckConnections.autoConnectionRunning)
+        if (!gridManager.HasGridStoppedMoving() || tile.tileTypes == TileTypes.Frozen_Tile || CheckConnections.autoConnectionRunning ||
+            Connect3Manager.gameWon == true || Connect3Manager.gameLost == true)
             return;
+
+        print("Can Drag: " + Time.deltaTime);
 
         dragDirection += eventData.delta / canvasScale;
 
@@ -93,7 +96,8 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos + (x * -1), tile.yGridPos]);
 
         mainConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
-        switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos + (x * -1), tile.yGridPos, switchColor);
+
+            switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos + (x * -1), tile.yGridPos, switchColor);
 
         if (mainConnectionsList || switchedConnectionsList)
         {
@@ -138,7 +142,6 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         
         mainConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
 
-        if(!mainConnectionsList)
             switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos + (y * -1), switchColor);
 
         if (mainConnectionsList || switchedConnectionsList)
