@@ -7,7 +7,6 @@ using TMPro;
 public class GridManager : MonoBehaviour
 {
     public GridGenerator tileGrid;
-    public DifficultyTypes difficultyType;
     CheckConnections connectionChecker;
 
     public Sprite blueTileImage, redTileImage, orangeTileImage, greenTileImage, yellowTileImage;
@@ -42,7 +41,7 @@ public class GridManager : MonoBehaviour
 
     void GenerateGrid()
     {
-        PopulateTilesInGrid(difficultyType);
+        PopulateTilesInGrid(Connect3Manager.gameDifficulty);
     }
 
     void PopulateTilesInGrid(DifficultyTypes difficulty)
@@ -167,7 +166,7 @@ public class GridManager : MonoBehaviour
         int ran = Random.Range(0, colorList.Count);
         TileColor tempTile = colorList[ran];
 
-        if (difficultyType == DifficultyTypes.Hard)
+        if (Connect3Manager.gameDifficulty == DifficultyTypes.Hard)
         {
             float randomNum = Random.Range(0.0f, 1.0f);
             if (randomNum <= chanceOfSpawningBombOnHard)
@@ -232,7 +231,7 @@ public class GridManager : MonoBehaviour
             int count = int.Parse(obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
             if (count <=0)
             {
-                print("Game Over");
+                Connect3Manager.gameLost = true;
             }
         }
 

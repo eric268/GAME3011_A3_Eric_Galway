@@ -137,7 +137,9 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
         SwapElements(ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos], ref gridGenerator.tileArray[tile.xGridPos, tile.yGridPos + (y * -1)]);
         
         mainConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos, startColor);
-        switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos + (y * -1), switchColor);
+
+        if(!mainConnectionsList)
+            switchedConnectionsList = connectionChecker.DoesConnectionExist(tile.xGridPos, tile.yGridPos + (y * -1), switchColor);
 
         if (mainConnectionsList || switchedConnectionsList)
             validConnection = true;

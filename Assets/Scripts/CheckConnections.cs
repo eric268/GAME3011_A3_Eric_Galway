@@ -4,21 +4,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public enum ConnectionTypes
-{
-    Close_Horizontal,
-    Far_Left,
-    Far_Right,
-    Close_Vertical,
-    Far_Up,
-    Far_Down,
-    Num_Connection_Types,
-}
+//public enum ConnectionTypes
+//{
+//    Close_Horizontal,
+//    Far_Left,
+//    Far_Right,
+//    Close_Vertical,
+//    Far_Up,
+//    Far_Down,
+//    Num_Connection_Types,
+//}
 
 public class CheckConnections : MonoBehaviour
 {
     GridGenerator tileGrid;
     GridManager gridManager;
+    Connect3UIController uiController;
     public static bool autoConnectionRunning = false;
     // Start is called before the first frame update
 
@@ -26,6 +27,7 @@ public class CheckConnections : MonoBehaviour
     {
         tileGrid = GetComponent<GridGenerator>();
         gridManager = GetComponent<GridManager>();
+        uiController = FindObjectOfType<Connect3UIController>();
     }
 
     public bool DoesConnectionExist(int x, int y, TileColor color)
@@ -99,6 +101,8 @@ public class CheckConnections : MonoBehaviour
         ConnectionInfo verticalInfo = ConnectionFound(false, x);
         if (verticalInfo.totalTilesConnected >= 3)
         {
+            UpdateGameStats(verticalInfo);
+
             verticalConnectionFound = true;
             int counter = 0;
             for (int i = verticalInfo.minPosition; i <= verticalInfo.maxPosition; i++)
@@ -122,6 +126,8 @@ public class CheckConnections : MonoBehaviour
 
         if (horizontalInfo.totalTilesConnected >= 3)
         {
+            UpdateGameStats(horizontalInfo);
+
             horizontalConnectionFound = true;
             for (int i = horizontalInfo.minPosition; i <= horizontalInfo.maxPosition; i++)
             {
@@ -243,6 +249,14 @@ public class CheckConnections : MonoBehaviour
                 tileGrid.tileArray[x, y + 1].transform.GetChild(0).GetComponent<Image>().enabled = false;
             }
         }
+    }
+
+    void UpdateGameStats(ConnectionInfo info)
+    {
+        Connect3Manager.score += 10 * info.totalTilesConnected;
+        Connect3Manager.currentTileDestroyed += info.totalTilesConnected;
+        uiController.SetScoreText();
+        uiController.SetTilesDestroyedText();
     }
 }
 
