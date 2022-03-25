@@ -34,7 +34,7 @@ public class OnDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHa
 
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
-        if (!gridManager.HasGridStoppedMoving() || tile.tileTypes == TileTypes.Frozen_Tile || CheckConnections.autoConnectionRunning ||
+        if (!gridManager.HasGridStoppedMoving() || tile.tileTypes == TileTypes.Frozen_Tile || !connectionChecker.canMakeMove ||
             Connect3Manager.gameWon == true || Connect3Manager.gameLost == true)
             return;
 

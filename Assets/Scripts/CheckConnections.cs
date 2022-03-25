@@ -21,6 +21,7 @@ public class CheckConnections : MonoBehaviour
     GridManager gridManager;
     Connect3UIController uiController;
     public static bool autoConnectionRunning = false;
+    public bool canMakeMove = true;
     // Start is called before the first frame update
 
     void Start()
@@ -70,6 +71,7 @@ public class CheckConnections : MonoBehaviour
 
     IEnumerator IsConnectionMade()
     {
+        canMakeMove = false;
         autoConnectionRunning = true;
         yield return new WaitForSeconds(0.85f);
         for (int col = 0; col < tileGrid.GridDimensions.y; col++)
@@ -91,6 +93,7 @@ public class CheckConnections : MonoBehaviour
             Connect3Manager.gameWon = true;
             uiController.SetGameOverText(true);
         }
+        canMakeMove = true;
     }
 
 
