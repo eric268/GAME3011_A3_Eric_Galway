@@ -42,7 +42,7 @@ public class GridManager : MonoBehaviour
 
     void GenerateGrid()
     {
-        PopulateTilesInGrid(Connect3Manager.gameDifficulty);
+        PopulateTilesInGrid(Connect3UIController.difficultyType);
     }
 
     public void PopulateTilesInGrid(DifficultyTypes difficulty)
@@ -85,6 +85,11 @@ public class GridManager : MonoBehaviour
                 tileGrid.tileArray[row, col].transform.GetChild(1).gameObject.SetActive(false);
             }
         }
+        while (!connectionChecker.IsMoveAvailable())
+        {
+            PopulateTileEasy();
+        }
+        int counter = 0;
     }
     void PopulateTileMedium()
     {
@@ -95,6 +100,12 @@ public class GridManager : MonoBehaviour
             tileGrid.tileArray[i, ran].transform.GetChild(0).gameObject.SetActive(true);
             tileGrid.tileArray[i, ran].transform.GetChild(0).GetComponent<Image>().enabled = true;
             tileGrid.tileArray[i, ran].GetComponent<Tile>().tileTypes = TileTypes.Frozen_Tile;
+        }
+        while (!connectionChecker.IsMoveAvailable())
+        {
+            print("Reorganizing tiles");
+            connectionChecker.IsMoveAvailable();
+            PopulateTileMedium();
         }
     }
 
@@ -118,6 +129,11 @@ public class GridManager : MonoBehaviour
             tileGrid.tileArray[i, ran].GetComponent<Image>().sprite = GetBombTileSprite(tileGrid.tileArray[i, ran].GetComponent<Tile>().tileColor);
             tileGrid.tileArray[i, ran].GetComponent<Tile>().tileTypes = TileTypes.Bomb_Tile;
             bombTileList.Add(tileGrid.tileArray[i, ran]);
+        }
+
+        while (!connectionChecker.IsMoveAvailable())
+        {
+            PopulateTileHard();
         }
     }
     Sprite GetNormalTileSprite(TileColor color)
@@ -159,19 +175,20 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void RemoveAndAddToTop(int x, int y, int yOffset, bool isVertical, int yMin, int verticalMovementAmount)
+    public void RemoveAndAddToTop(int x, int y, int yOffset, bool isVertical, int yMin, int verticalMovementAmount, bool twoVert)
     {
-        StartCoroutine(AddToTop(x, y, yOffset, isVertical, yMin, verticalMovementAmount));
+        StartCoroutine(AddToTop(x, y, yOffset, isVertical, yMin, verticalMovementAmount, twoVert));
     }
 
-    IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical, int yMin, int verticalMovementAmount)
+    IEnumerator AddToTop(int x, int y, int yOffset, bool isVertical, int yMin, int verticalMovementAmount, bool twoVert)
     {
         yield return new WaitForSeconds(0.5f);
+
 
         int ran = Random.Range(0, colorList.Count);
         TileColor tempTile = colorList[ran];
 
-        if (Connect3Manager.gameDifficulty == DifficultyTypes.Hard)
+        if (Connect3UIController.difficultyType == DifficultyTypes.Hard)
         {
             float randomNum = Random.Range(0.0f, 1.0f);
             if (randomNum <= chanceOfSpawningBombOnHard)
@@ -190,13 +207,20 @@ public class GridManager : MonoBehaviour
 
         int counter = y;
 
+
+        //if (twoVert)
+        //{
+        //    yMin++;
+        //    print("Double vert connection");
+        //}
+
         if (!isVertical)
         {
             while (counter > 0)
             {
                 tileGrid.tileArray[x, counter].GetComponent<Tile>().ShiftTileDown();
                 counter--;
-                yield return null;
+               yield return null;
             }
         }
         else

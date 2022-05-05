@@ -16,7 +16,6 @@ public class Connect3Manager : MonoBehaviour
     public static int mediumTileWinCounter = 80;
     public static int hardTileWinCounter = 100;
 
-    public static DifficultyTypes gameDifficulty;
     public static int currentTime;
     public static int currentTileDestroyed = 0;
     public static int tilesToWin;
@@ -50,29 +49,25 @@ public class Connect3Manager : MonoBehaviour
                 int count = int.Parse(obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
                 if (count <= 0)
                 {
-                    Connect3Manager.gameLost = true;
+                    gameLost = true;
                 }
             }
         }
     }
 
-    public void SetRandomDifficulty()
+    public void SetDifficultyValues()
     {
-        DifficultyTypes ran = (DifficultyTypes)Random.Range(0, (int)DifficultyTypes.Num_Of_Difficulty_Types);
-        switch (ran)
+        switch (Connect3UIController.difficultyType)
         {
             case DifficultyTypes.Easy:
-                gameDifficulty = DifficultyTypes.Easy;
                 currentTime = totalEasyModeTime;
                 tilesToWin = easyTileWinCounter;
                 break;
             case DifficultyTypes.Medium:
-                gameDifficulty = DifficultyTypes.Medium;
                 currentTime = totalMediumModeTime;
                 tilesToWin = mediumTileWinCounter;
                 break;
             case DifficultyTypes.Hard:
-                gameDifficulty = DifficultyTypes.Hard;
                 currentTime = totalHardModeTime;
                 tilesToWin = hardTileWinCounter;
                 break;
@@ -87,13 +82,13 @@ public class Connect3Manager : MonoBehaviour
     {
         score = 0;
         CancelInvoke("DecrementTimer");
-        SetRandomDifficulty();
+        SetDifficultyValues();
         currentTileDestroyed = 0;
         gameIsRunning = true;
         gameWon = false;
         gameLost = false;
         InvokeRepeating("DecrementTimer", 0.0f, 1.0f);
         uIController.SetText();
-                gridManager.bombTileList.Clear();
+        gridManager.bombTileList.Clear();
     }
 }

@@ -6,6 +6,10 @@ using UnityEngine.SceneManagement;
 
 public class Connect3UIController : MonoBehaviour
 {
+    public static DifficultyTypes difficultyType;
+
+    public TMP_Dropdown difficultyDropDown;
+
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timeText;
     public TextMeshProUGUI difficultyText;
@@ -20,7 +24,16 @@ public class Connect3UIController : MonoBehaviour
     {
         connect3Manager = FindObjectOfType<Connect3Manager>();
         gridManager = FindObjectOfType<GridManager>();
+
+        if (difficultyDropDown)
+        {
+            difficultyDropDown.onValueChanged.AddListener(delegate
+            {
+                OnDifficultyLevelSelected();
+            });
+        }
     }
+
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -32,7 +45,7 @@ public class Connect3UIController : MonoBehaviour
     {
         connect3Manager.NewGame();
         SetText();
-        gridManager.PopulateTilesInGrid(Connect3Manager.gameDifficulty);
+        gridManager.PopulateTilesInGrid(Connect3UIController.difficultyType);
     }
 
     public void SetText()
@@ -81,7 +94,7 @@ public class Connect3UIController : MonoBehaviour
     {
         tilesToWinText.text = "Total Tiles To Win: " + Connect3Manager.tilesToWin;
 
-        switch(Connect3Manager.gameDifficulty)
+        switch(difficultyType)
         {
             case DifficultyTypes.Easy:
                 difficultyText.text = "Difficulty: Easy";
@@ -100,13 +113,18 @@ public class Connect3UIController : MonoBehaviour
         if (gameWon)
         {
             gameOverText.color = Color.green;
-            gameOverText.text = "You Won! \n Your score was: " + Connect3Manager.score;
+            gameOverText.text = "You Won!";
         }
         else
         {
             gameOverText.color = Color.red;
-            gameOverText.text = "You Lost! \n Your score was: " + Connect3Manager.score;
+            gameOverText.text = "You Lost!";
         }
     }
+
+    public void OnDifficultyLevelSelected()
+    {
+        difficultyType = (DifficultyTypes)difficultyDropDown.value; 
+    }    
 
 }
